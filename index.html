@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作品集 | Portfolio</title>
+    <meta name="description" content="視覺藝術創作者作品集，融合數位互動與傳統美學。">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Noto Serif TC：具書法骨氣的中文字型 / Cormorant Garamond：極對比的西文展示字型 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+
+    <!-- ════════════════════════════════════════
+         加載畫面：貓咪奔跑場景
+         場景水平無縫滾動，貓咪固定正中央
+         ════════════════════════════════════════ -->
+    <div id="page-loader" aria-label="資源載入中" role="status">
+        <!-- 品牌標誌 -->
+        <div class="loader-brand">
+            <span class="loader-diamond">◆</span>
+            <span class="loader-name">H A I N</span>
+        </div>
+
+        <!-- 場景視窗：背景滾動 + 貓咪居中 -->
+        <div class="loader-scene">
+            <!-- 無縫滾動背景軌道（兩份拼接實現無縫迴圈） -->
+            <div class="loader-bg-strip" aria-hidden="true"></div>
+            <!-- 四邊羽化遮罩 -->
+            <div class="loader-vignette" aria-hidden="true"></div>
+            <!-- 貓咪：固定中央，GIF 自帶奔跑動作 -->
+            <img class="loader-cat" src="CAT/CAT_RUN_GIF.gif" alt="" aria-hidden="true">
+        </div>
+
+        <!-- 載入狀態文字 -->
+        <p class="loader-caption">資源預載中 <span class="loader-slash">/</span> PRELOADING</p>
+    </div>
+
+    <!-- 全域紙質噪音背景層 -->
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    <!-- 全螢幕黑幕轉場遮罩 -->
+    <div class="transition-overlay" aria-hidden="true"></div>
+
+    <!-- 頂部玻璃膠囊導覽列（保留參考圖風格） -->
+    <header class="header-nav">
+        <nav class="nav-capsule" aria-label="主導覽">
+            <div class="nav-brand">
+                <span class="brand-mark">&#x25C6;</span>
+                <span class="brand-name">HAIN</span>
+            </div>
+            <ul class="nav-links" role="list">
+                <li><a href="portfolio.html" class="nav-link">作品</a></li>
+                <li><a href="about.html" class="nav-link">關於</a></li>
+            </ul>
+            <a href="mailto:lyh0972717368@gmail.com" class="btn-request">聯繫</a>
+            <!-- 手機漢堡選單按鈕 -->
+            <button class="menu-toggle" id="menuToggle" aria-label="開啟選單" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+        </nav>
+        <!-- 手機展開選單（導覽列下方滑下展開） -->
+        <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+            <ul class="mobile-nav-links" role="list">
+                <li><a href="portfolio.html" class="mobile-nav-link">作品</a></li>
+                <li><a href="about.html" class="mobile-nav-link">關於</a></li>
+                <li><a href="mailto:lyh0972717368@gmail.com" class="mobile-nav-link mobile-nav-accent">聯繫</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- 主視覺 Hero 區域 -->
+    <main id="hero" class="hero-section">
+
+        <!-- 左側個人介紹 -->
+        <aside class="hero-left" aria-label="HAIN 作品集介紹">
+            <div class="vertical-text-block">
+                <p class="v-label">創作者 / CREATIVE</p>
+                <h1 class="v-title">HAIN</h1>
+                <p class="v-intro">視覺藝術與互動媒體的創作者，探索數位與自然之間的邊界，以影像、動態與空間敘事構築沉浸式體驗。</p>
+            </div>
+            <div class="series-meta">
+                <span class="meta-item">視覺設計</span>
+                <span class="meta-divider"></span>
+                <span class="meta-item">互動媒體</span>
+                <span class="meta-divider"></span>
+                <span class="meta-item">動態影像</span>
+            </div>
+        </aside>
+
+        <!-- 貓咪影片（縮小為主視覺焦點，非滿版） -->
+        <div class="video-wrapper">
+            <video
+                id="bg-video"
+                src="CAT/CAT02.mp4"
+                muted
+                playsinline
+                preload="auto"
+                aria-label="互動影像：貓咪頭部跟隨滑鼠轉動"
+            >
+                您的瀏覽器不支援影片標籤。
+            </video>
+            <video
+                id="eat-video"
+                src="CAT/CAT_咬.mp4"
+                muted
+                playsinline
+                preload="auto"
+                style="display: none;"
+                aria-label="互動影像：貓咪咬食"
+            >
+                您的瀏覽器不支援影片標籤。
+            </video>
+        </div>
+
+        <!-- 右側資訊欄 -->
+        <aside class="hero-right" aria-label="藝術家資訊">
+            <div class="right-block">
+                <p class="right-label">狀態 / STATUS</p>
+                <p class="right-status">
+                    <span class="dot-pulse"></span>
+                    動態感應中
+                </p>
+            </div>
+            <div class="right-block">
+                <p class="right-label">互動 / INTERACTION</p>
+                <p class="right-desc">左右移動滑鼠<br>控制生物視線</p>
+            </div>
+        </aside>
+
+        <!-- 底部水平 Ticker 分隔線 -->
+        <footer class="hero-footer">
+            <div class="ticker-line" aria-hidden="true">
+                <div class="ticker-track" id="tickerTrack">
+                    <!-- JS 將從這份複製足夠份數，注意 span 間不要有换行避免不明空白 --><span class="ticker-seed">觀者即參與者 · VIEWER IS PARTICIPANT · 生物感應 · BIOMETRIC RESPONSE · 視線交換 · GAZE EXCHANGE · </span>
+                </div>
+            </div>
+            <p class="footer-caption">移動滑鼠 &mdash; 與牠對視</p>
+        </footer>
+
+    </main>
+
+    <script>
+        // 確保任何時候載入首頁（包含點擊瀏覽器上一頁/回退快取）都會立刻清除轉場樣式，恢復首頁與貓咪顯示
+        function resetTransitionState() {
+            document.body.classList.remove('transition-active');
+            const overlay = document.querySelector('.transition-overlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+            if (window.respawnBug) {
+                window.respawnBug();
+            }
+        }
+        window.addEventListener('pageshow', resetTransitionState);
+        window.addEventListener('DOMContentLoaded', resetTransitionState);
+
+        // 跑馬燈真正無縮循環：用 JS 測量實際像素寬度，動態填充足夠份數，再用精確像素字紹設定動画
+        // 動画終點就是「一份寬度」，開始跟終點視覺完全相同，100% 無縮、無跳幀。
+        document.addEventListener('DOMContentLoaded', function () {
+            const track = document.getElementById('tickerTrack');
+            if (!track) return;
+
+            const seed = track.querySelector('.ticker-seed');
+            if (!seed) return;
+
+            // 測量單份像素寬度
+            const seedW = seed.getBoundingClientRect().width;
+            if (seedW === 0) return;
+
+            // 需要的份數：至少覆蓋【視窗寬度 × 3】，確保任何尺寸都無空白
+            const copies = Math.ceil((window.innerWidth * 3) / seedW) + 2;
+
+            // 填充就圖（第一份 seed 已在 DOM 裡，從第二份開始複製）
+            for (let i = 1; i < copies; i++) {
+                const clone = seed.cloneNode(true);
+                track.appendChild(clone);
+            }
+
+            // 用精確像素字紹建立 @keyframes，動画終點 = 一份寬度，讓下一循環完美超接
+            const duration = seedW / 60; // 60px/秒 的滾動速度
+            const styleEl = document.createElement('style');
+            styleEl.textContent = [
+                '@keyframes tickerSeamless {',
+                '  from { transform: translateX(0px); }',
+                '  to   { transform: translateX(-' + Math.round(seedW) + 'px); }',
+                '}',
+                '#tickerTrack {',
+                '  animation: tickerSeamless ' + duration.toFixed(2) + 's linear infinite;',
+                '}'
+            ].join('\n');
+            document.head.appendChild(styleEl);
+        });
+    </script>
+
+    <script src="script.js?v=5"></script>
+    <script src="cursor.js?v=1"></script>
+    <script src="nav.js?v=1"></script>
+</body>
+</html>

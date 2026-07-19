@@ -1,0 +1,30 @@
+# Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temp/logs
+*.log
+tmp/
+temp/
+
+# IDE settings
+.vscode/
+.idea/
+.agents/
+.gemini/
+
+# 3D Source files & backups
+*.blend
+*.blend1
+*.blend2
+*.max
+*.mb
+*.ma
+**/beetle+3d+model/
+
+# 排除整套已棄用的「守宮」3D相關檔案與影片（全站已無引用）
+守宮/
+守宮*
+
+# cursor-bug.js（如果不需要，但它是 JS 程式碼，看要不要保留，通常保留 JS code 沒關係，但 3D 資源都在 守宮/）

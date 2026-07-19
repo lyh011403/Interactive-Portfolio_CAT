@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>精選作品集 | HAIN Portfolio</title>
+    <meta name="description" content="HAIN 的視覺藝術、遊戲美術與 AI 系統設計精選作品。">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── 作品頁面主排版 ── */
+        .portfolio-body {
+            background-color: var(--bg);
+            color: var(--ink);
+            overflow-y: scroll;
+            height: auto;
+            min-height: 100vh;
+        }
+
+        .portfolio-container {
+            max-width: 1280px;
+            margin: 130px auto 80px;
+            padding: 0 32px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+            border-left: 3px solid var(--accent);
+            padding-left: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-family: var(--font-zh);
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.1;
+        }
+
+        .page-subtitle {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        /* ── 分類過濾選單 (Sumi-e Filter Nav) ── */
+        .filter-nav {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 45px;
+            border-bottom: 1px solid var(--dim);
+            padding-bottom: 20px;
+        }
+
+        .filter-btn {
+            font-family: var(--font-zh);
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: rgba(20, 18, 16, 0.02);
+            border: 1px solid var(--dim);
+            color: var(--muted);
+            cursor: pointer;
+            padding: 8px 18px;
+            border-radius: 30px;
+            /* 質感膠囊形小按鈕 */
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .filter-btn:hover {
+            background: rgba(20, 18, 16, 0.07);
+            border-color: var(--ink);
+            color: var(--ink);
+            transform: translateY(-2px);
+            /* 懸停時微微浮起，回饋感拉滿 */
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg);
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(168, 52, 28, 0.18);
+        }
+
+        /* ── 作品展示網格 ── */
+        .works-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 40px;
+            transition: opacity 0.3s ease;
+        }
+
+        /* ── 卡片設計 (Brand Visual Soul Card) ── */
+        .work-card {
+            background: rgba(240, 235, 224, 0.2);
+            border: 1px solid var(--dim);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .work-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--ink);
+            box-shadow: 0 16px 40px rgba(20, 18, 16, 0.08);
+        }
+
+        .work-img-wrapper {
+            width: 100%;
+            height: 230px;
+            overflow: hidden;
+            background: #e4decb;
+            position: relative;
+        }
+
+        .work-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* 預設微微去色/低飽和度，懸停時轉為全彩，高級感十足 */
+            filter: saturate(0.2) contrast(1.1);
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+        }
+
+        .work-card:hover .work-img {
+            transform: scale(1.06);
+            filter: saturate(1.0) contrast(1.0);
+        }
+
+        /* 影片指示標誌 */
+        .video-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(20, 18, 16, 0.8);
+            color: var(--bg);
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            padding: 4px 10px;
+            border-radius: 2px;
+            border: 1px solid var(--dim);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .video-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .work-info {
+            padding: 26px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .work-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .work-category {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .work-year {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        .work-title {
+            font-family: var(--font-zh);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .work-desc {
+            font-family: var(--font-zh);
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+            flex-grow: 1;
+            text-align: justify;
+        }
+
+        .work-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--ink);
+            border-top: 1px dashed var(--dim);
+            padding-top: 18px;
+        }
+
+        .view-more {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* ── 客製化彈窗 Lightbox Modal (Premium Details) ── */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(20, 18, 16, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: opacity 0.5s ease;
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--bg);
+            border: 1px solid var(--ink);
+            border-radius: 4px;
+            width: 100%;
+            max-width: 1100px;
+            max-height: 85vh;
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+        }
+
+        .modal.open .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* 媒體展示區 (左側) */
+        .modal-media-pane {
+            background: #0d0c0b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 450px;
+        }
+
+        .modal-media-pane video,
+        .modal-media-pane img {
+            max-width: 100%;
+            max-height: 75vh;
+            object-fit: contain;
+        }
+
+        /* 投影片導覽 */
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%) scale(0.92);
+            background: rgba(20, 18, 16, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 48px;
+            height: 48px;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            opacity: 0.35;
+            /* 預設虛化淡出，不遮擋作品視野 */
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10;
+        }
+
+        .slider-arrow:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            opacity: 0.9;
+            transform: translateY(-50%) scale(1.05);
+            /* 懸停時清晰並略微變大 */
+        }
+
+        .arrow-left {
+            left: 20px;
+        }
+
+        .arrow-right {
+            right: 20px;
+        }
+
+        .slider-counter {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 18, 16, 0.7);
+            color: #fff;
+            padding: 4px 12px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            border-radius: 12px;
+        }
+
+        /* 詳情說明區 (右側) */
+        .modal-detail-pane {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border-left: 1px solid var(--dim);
+            max-height: 85vh;
+        }
+
+        .modal-category {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            font-family: var(--font-zh);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.2;
+            margin-bottom: 24px;
+        }
+
+        .modal-desc {
+            font-family: var(--font-zh);
+            font-size: 0.95rem;
+            color: var(--muted);
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+
+        .modal-meta-list {
+            margin-top: auto;
+            border-top: 1px solid var(--dim);
+            padding-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-meta-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .modal-meta-label {
+            font-family: var(--font-zh);
+            color: var(--muted);
+        }
+
+        .modal-meta-val {
+            font-family: var(--font-mono);
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        /* 關閉按鈕 */
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(240, 235, 224, 0.9);
+            color: var(--ink);
+            border: 1px solid var(--ink);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.25rem;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            transform: rotate(90deg);
+        }
+
+        /* ── 響應式配置 ── */
+        @media (max-width: 900px) {
+            .portfolio-body {
+                overflow-x: hidden !important; /* 徹底防堵手機版左右滑動 */
+            }
+
+            .portfolio-container {
+                margin: 130px auto 60px; /* 增加頂部間距，避免文字被 Header 遮擋 */
+                padding: 0 16px; /* 手機版縮小 padding 放大內容空間 */
+            }
+
+            .works-grid {
+                grid-template-columns: 1fr; /* 改為單欄，避免 minmax(360px) 撐破畫面 */
+                gap: 24px;
+            }
+
+            .modal-content {
+                grid-template-columns: 1fr;
+                max-height: 90vh;
+            }
+
+            .modal-detail-pane {
+                max-height: 40vh;
+                padding: 30px;
+            }
+
+            .modal-media-pane {
+                min-height: 300px;
+            }
+
+            .modal {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body class="portfolio-body" style="cursor:none;">
+
+    <!-- 全域紙質噪音背景層 -->
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    <!-- 全螢幕黑幕轉場遮罩 -->
+    <div class="transition-overlay" aria-hidden="true"></div>
+
+    <!-- 葉影裝飾 (全頁占滿) -->
+    <div class="leaf-layer" aria-hidden="true">
+        <img loading="lazy" src="assets/t1.webp" alt="">
+    </div>
+
+    <!-- 頂部玻璃膠囊導覽列 -->
+    <header class="header-nav">
+        <nav class="nav-capsule" aria-label="主導覽">
+            <a href="index.html" class="nav-brand nav-link">
+                <span class="brand-mark">&#x25C6;</span>
+                <span class="brand-name">HAIN</span>
+            </a>
+            <ul class="nav-links" role="list">
+                <li><a href="portfolio.html" class="nav-link" style="color: var(--ink); font-weight: 700;">作品</a></li>
+                <li><a href="about.html" class="nav-link">關於</a></li>
+            </ul>
+            <a href="mailto:lyh0972717368@gmail.com" class="btn-request nav-link">聯繫</a>
+            <!-- 手機漢堡選單按鈕 -->
+            <button class="menu-toggle" id="menuToggle" aria-label="開啟選單" aria-expanded="false">
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+                <span class="menu-bar"></span>
+            </button>
+        </nav>
+        <!-- 手機展開選單 -->
+        <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+            <ul class="mobile-nav-links" role="list">
+                <li><a href="portfolio.html" class="mobile-nav-link" style="color: var(--ink); font-weight: 700;">作品</a></li>
+                <li><a href="about.html" class="mobile-nav-link">關於</a></li>
+                <li><a href="mailto:lyh0972717368@gmail.com" class="mobile-nav-link mobile-nav-accent">聯繫</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="portfolio-container">
+        <header class="page-header">
+            <div>
+                <h1 class="page-title">精選作品</h1>
+                <p class="page-subtitle">Selected Projects & Creative Experiments</p>
+            </div>
+        </header>
+
+        <!-- 類別過濾導覽列 (與實體資料夾及 P.txt 配置完全對齊) -->
+        <nav class="filter-nav" aria-label="作品分類">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="he-m">黃易群俠傳m</button>
+            <button class="filter-btn" data-filter="legend-s">天子傳奇S</button>
+            <button class="filter-btn" data-filter="wonderland-re">飄流幻境RE</button>
+            <button class="filter-btn" data-filter="self-3d">自製3D</button>
+            <button class="filter-btn" data-filter="ai-2d">AI 2D</button>
+            <button class="filter-btn" data-filter="ai-3d">AI 3D</button>
+            <button class="filter-btn" data-filter="ai-system">AI系統</button>
+            <button class="filter-btn" data-filter="embedded-ai">嵌入式AI影像應用班</button>
+        </nav>
+
+        <!-- 作品網格 -->
+        <section class="works-grid" id="worksGrid">
+
+            <!-- ── 黃易群俠傳m 系列 (展開為 5 張卡片) ── -->
+            <article class="work-card" data-category="he-m" data-title="黃易群俠傳m" data-year="2019~2021"
+                data-tech="3D MAX、Substance painter"
+                data-images="作品集/專案/黃易群俠傳m/01 (1).webp,作品集/專案/黃易群俠傳m/01 (2).webp,作品集/專案/黃易群俠傳m/01 (3).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/黃易群俠傳m/01 (1).webp" alt="黃易角色">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">黃易群俠傳m</span>
+                        <span class="work-year">2019~2021</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>3D MAX、Substance painter</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="he-m" data-title="黃易群俠傳m" data-year="2019~2021"
+                data-tech="3D MAX、Substance painter"
+                data-images="作品集/專案/黃易群俠傳m/02 (1).webp,作品集/專案/黃易群俠傳m/02 (2).webp,作品集/專案/黃易群俠傳m/02 (3).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/黃易群俠傳m/02 (1).webp" alt="黃易場景">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">黃易群俠傳m</span>
+                        <span class="work-year">2019~2021</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>3D MAX、Substance painter</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="he-m" data-title="黃易群俠傳m" data-year="2019~2021"
+                data-tech="3D MAX、Substance painter" data-images="作品集/專案/黃易群俠傳m/03 (1).webp,作品集/專案/黃易群俠傳m/03 (2).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/黃易群俠傳m/03 (1).webp" alt="黃易武器">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">黃易群俠傳m</span>
+                        <span class="work-year">2019~2021</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>3D MAX、Substance painter</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="he-m" data-title="黃易群俠傳m" data-year="2019~2021"
+                data-tech="3D MAX、Substance painter" data-images="作品集/專案/黃易群俠傳m/04 (1).webp,作品集/專案/黃易群俠傳m/04 (2).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/黃易群俠傳m/04 (1).webp" alt="黃易UI">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">黃易群俠傳m</span>
+                        <span class="work-year">2019~2021</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>3D MAX、Substance painter</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="he-m" data-title="黃易群俠傳m" data-year="2019~2021"
+                data-tech="3D MAX、Substance painter" data-images="作品集/專案/黃易群俠傳m/05 (1).webp,作品集/專案/黃易群俠傳m/05 (2).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/黃易群俠傳m/05 (1).webp" alt="黃易原畫">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">黃易群俠傳m</span>
+                        <span class="work-year">2019~2021</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>3D MAX、Substance painter</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── 天子傳奇S 系列 (展開為 5 張卡片) ── -->
+            <article class="work-card" data-category="legend-s" data-title="天子傳奇S" data-year="2021~2023"
+                data-tech="blender、Substance painter"
+                data-images="作品集/專案/天子傳奇S/01 (1).webp,作品集/專案/天子傳奇S/01 (2).webp,作品集/專案/天子傳奇S/01 (3).webp,作品集/專案/天子傳奇S/01 (4).webp,作品集/專案/天子傳奇S/01 (5).webp,作品集/專案/天子傳奇S/01 (6).webp,作品集/專案/天子傳奇S/01 (7).webp,作品集/專案/天子傳奇S/01 (8).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/天子傳奇S/01 (1).webp" alt="天子介面1">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">天子傳奇S</span>
+                        <span class="work-year">2021~2023</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、Substance painter</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="legend-s" data-title="天子傳奇S" data-year="2021~2023"
+                data-tech="blender、Substance painter"
+                data-images="作品集/專案/天子傳奇S/02 (1).webp,作品集/專案/天子傳奇S/02 (2).webp,作品集/專案/天子傳奇S/02 (3).webp,作品集/專案/天子傳奇S/02 (4).webp,作品集/專案/天子傳奇S/02.webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/天子傳奇S/02 (1).webp" alt="天子場景2">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">天子傳奇S</span>
+                        <span class="work-year">2021~2023</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、Substance painter</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="legend-s" data-title="天子傳奇S" data-year="2021~2023"
+                data-tech="blender、Substance painter"
+                data-images="作品集/專案/天子傳奇S/03 (1).webp,作品集/專案/天子傳奇S/03 (6).webp,作品集/專案/天子傳奇S/03 (7).webp,作品集/專案/天子傳奇S/03 (8).webp,作品集/專案/天子傳奇S/03 (9).webp,作品集/專案/天子傳奇S/03 (10).webp,作品集/專案/天子傳奇S/03 (11).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/天子傳奇S/03 (1).webp" alt="天子雕刻3">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">天子傳奇S</span>
+                        <span class="work-year">2021~2023</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、Substance painter</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="legend-s" data-title="天子傳奇S" data-year="2021~2023"
+                data-tech="blender、Substance painter"
+                data-images="作品集/專案/天子傳奇S/04 (1).webp,作品集/專案/天子傳奇S/04 (2).webp,作品集/專案/天子傳奇S/04 (3).webp,作品集/專案/天子傳奇S/04 (4).webp,作品集/專案/天子傳奇S/04 (5).webp,作品集/專案/天子傳奇S/04 (6).webp,作品集/專案/天子傳奇S/04 (7).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/天子傳奇S/04 (1).webp" alt="天子武器4">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">天子傳奇S</span>
+                        <span class="work-year">2021~2023</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、Substance painter</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="legend-s" data-title="天子傳奇S" data-year="2021~2023"
+                data-tech="blender、Substance painter" data-images="作品集/專案/天子傳奇S/05 (1).webp,作品集/專案/天子傳奇S/05 (2).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/天子傳奇S/05 (1).webp" alt="天子合成5">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">天子傳奇S</span>
+                        <span class="work-year">2021~2023</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、Substance painter</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── 飄流幻境RE 系列 (展開為 9 張卡片) ── -->
+            <article class="work-card" data-category="wonderland-re" data-title="飄流幻境RE" data-year="2023~2025"
+                data-tech="blender、GPT、GEMINI、TRIPO、Hunyuan3D"
+                data-images="作品集/專案/飄流幻境RE/01 (1).webp,作品集/專案/飄流幻境RE/01 (2).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/飄流幻境RE/01 (1).webp" alt="飄流1">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">飄流幻境RE</span>
+                        <span class="work-year">2023~2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI、TRIPO、Hunyuan3D</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="wonderland-re" data-title="飄流幻境RE" data-year="2023~2025"
+                data-tech="blender、GPT、GEMINI、TRIPO、Hunyuan3D"
+                data-images="作品集/專案/飄流幻境RE/02 (1).webp,作品集/專案/飄流幻境RE/02 (2).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/飄流幻境RE/02 (1).webp" alt="飄流2">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">飄流幻境RE</span>
+                        <span class="work-year">2023~2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI、TRIPO、Hunyuan3D</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="wonderland-re" data-title="飄流幻境RE" data-year="2023~2025"
+                data-tech="blender、GPT、GEMINI、TRIPO、Hunyuan3D"
+                data-images="作品集/專案/飄流幻境RE/03 (1).webp,作品集/專案/飄流幻境RE/03 (2).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/飄流幻境RE/03 (1).webp" alt="飄流3">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">飄流幻境RE</span>
+                        <span class="work-year">2023~2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI、TRIPO、Hunyuan3D</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="wonderland-re" data-title="飄流幻境RE" data-year="2023~2025"
+                data-tech="blender、GPT、GEMINI、TRIPO" data-images="作品集/專案/飄流幻境RE/04 (1).webp,作品集/專案/飄流幻境RE/04 (2).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/飄流幻境RE/04 (1).webp" alt="飄流4">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">飄流幻境RE</span>
+                        <span class="work-year">2023~2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI、TRIPO</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="wonderland-re" data-title="飄流幻境RE" data-year="2023~2025"
+                data-tech="blender、GPT、GEMINI" data-images="作品集/專案/飄流幻境RE/05 (1).webp,作品集/專案/飄流幻境RE/05 (2).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/飄流幻境RE/05 (1).webp" alt="飄流5">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">飄流幻境RE</span>
+                        <span class="work-year">2023~2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="wonderland-re" data-title="飄流幻境RE" data-year="2023~2025"
+                data-tech="blender、GPT、GEMINI"
+                data-images="作品集/專案/飄流幻境RE/06 (1).webp,作品集/專案/飄流幻境RE/06 (2).webp,作品集/專案/飄流幻境RE/06 (3).webp,作品集/專案/飄流幻境RE/06 (4).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/飄流幻境RE/06 (1).webp" alt="飄流6">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">飄流幻境RE</span>
+                        <span class="work-year">2023~2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="wonderland-re" data-title="飄流幻境RE" data-year="2023~2025"
+                data-tech="blender、GPT、GEMINI" data-images="作品集/專案/飄流幻境RE/07 (1).webp,作品集/專案/飄流幻境RE/07 (2).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/飄流幻境RE/07 (1).webp" alt="飄流7">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">飄流幻境RE</span>
+                        <span class="work-year">2023~2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="wonderland-re" data-title="飄流幻境RE" data-year="2023~2025"
+                data-tech="blender、GPT、TRIPO" data-images="作品集/專案/飄流幻境RE/08.webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/飄流幻境RE/08.webp" alt="飄流8">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">飄流幻境RE</span>
+                        <span class="work-year">2023~2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、TRIPO</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="wonderland-re" data-title="飄流幻境RE" data-year="2023~2025"
+                data-tech="blender、GPT"
+                data-images="作品集/專案/飄流幻境RE/09 (1).webp,作品集/專案/飄流幻境RE/09 (2).webp,作品集/專案/飄流幻境RE/09 (3).webp,作品集/專案/飄流幻境RE/09 (4).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/專案/飄流幻境RE/09 (1).webp" alt="飄流9">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">飄流幻境RE</span>
+                        <span class="work-year">2023~2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── 自製 3D 系列 (展開為 2 張卡片) ── -->
+            <article class="work-card" data-category="self-3d" data-title="螞蟻" data-year=""
+                data-tech="blender、Substance painter、Unreal"
+                data-images="作品集/自製3D/螞蟻/MyProject - Unreal Editor 2025-09-29 16-39-41.mp4,作品集/自製3D/螞蟻/Screenshot_2.webp,作品集/自製3D/螞蟻/Screenshot_3.webp,作品集/自製3D/螞蟻/Screenshot_4.webp,作品集/自製3D/螞蟻/lyh_et-b1a-2048.webp,作品集/自製3D/螞蟻/lyh_et-b2a-2048.webp,作品集/自製3D/螞蟻/lyh_et-b3a-2048.webp,作品集/自製3D/螞蟻/02.webp,作品集/自製3D/螞蟻/03.webp,作品集/自製3D/螞蟻/05.webp">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">VIDEO / 3D</span>
+                    <img class="work-img" src="作品集/自製3D/螞蟻/Screenshot_2.webp" alt="螞蟻3D模型" loading="lazy">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">自製3D</span>
+                        <span class="work-year"></span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、Substance painter、Unreal</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="self-3d" data-title="設計" data-year=""
+                data-tech="blender"
+                data-images="作品集/自製3D/設計/b (1).webp,作品集/自製3D/設計/b (2).webp,作品集/自製3D/設計/b (3).webp,作品集/自製3D/設計/b (4).webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/自製3D/設計/b (1).webp" alt="自製3D設計">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">自製3D</span>
+                        <span class="work-year"></span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── AI 2D 系列 (2 張卡片) ── -->
+            <article class="work-card" data-category="ai-2d" data-title="楓之谷" data-year="2025~2026"
+                data-tech="GPT、GEMINI、GEMINI GEM、VEO"
+                data-images="作品集/AI 2D/楓之谷造型/msw_czUdrpOPmu.mp4,作品集/AI 2D/楓之谷造型/msw_dET2sBT8b0.mp4">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">VIDEO / 2D</span>
+                    <img class="work-img" src="作品集/AI 2D/楓之谷造型/maple_thumb.webp" alt="楓之谷" loading="lazy">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">AI 2D</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>GPT、GEMINI、GEMINI GEM、VEO</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="ai-2d" data-title="生成"
+                data-year="2025~2026" data-tech="GPT、GEMINI、GEMINI GEM、VEO"
+                data-images="作品集/AI 2D/自製系列/windmill-1.webp,作品集/AI 2D/自製系列/Grass.webp,作品集/AI 2D/自製系列/house01.webp,作品集/AI 2D/自製系列/懺悔的鐘徒.mp4,作品集/AI 2D/自製系列/聚合主母·「厄兆結」.mp4">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/AI 2D/自製系列/windmill-1.webp" alt="AI 2D">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">AI 2D</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>GPT、GEMINI、GEMINI GEM、VEO</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── AI 3D 系列 (4 張卡片) ── -->
+            <article class="work-card" data-category="ai-3d" data-title="巨魔" data-year="2025~2026"
+                data-tech="blender、GPT、GEMINI、TRIPO、Hunyuan3D、GEMINI GEM"
+                data-images="作品集/AI 3D/巨魔/ai3d_1.webp,作品集/AI 3D/巨魔/ai3d_2.webp,作品集/AI 3D/巨魔/ai3d_3.webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/AI 3D/巨魔/ai3d_1.webp" alt="AI 3D 巨魔">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">AI 3D</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI、TRIPO、Hunyuan3D、GEMINI GEM</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="ai-3d" data-title="石頭人" data-year="2025~2026"
+                data-tech="blender、GPT、GEMINI、TRIPO、Hunyuan3D、GEMINI GEM"
+                data-images="作品集/AI 3D/石頭人/ai3d_4.webp,作品集/AI 3D/石頭人/ai3d_5.webp,作品集/AI 3D/石頭人/ai3d_6.webp,作品集/AI 3D/石頭人/ai3d_7.webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/AI 3D/石頭人/ai3d_4.webp" alt="AI 3D 石頭人">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">AI 3D</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI、TRIPO、Hunyuan3D、GEMINI GEM</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="ai-3d" data-title="兔子餐車" data-year="2025~2026"
+                data-tech="blender、GPT、GEMINI、TRIPO、Hunyuan3D、GEMINI GEM"
+                data-images="作品集/AI 3D/兔子餐車/ai3d_9.webp,作品集/AI 3D/兔子餐車/ai3d_8.webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/AI 3D/兔子餐車/ai3d_9.webp" alt="AI 3D 兔子餐車">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">AI 3D</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI、TRIPO、Hunyuan3D、GEMINI GEM</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="ai-3d" data-title="埃及宮殿" data-year="2025~2026"
+                data-tech="blender、GPT、GEMINI、TRIPO、Hunyuan3D、GEMINI GEM"
+                data-images="作品集/AI 3D/埃及宮殿_飄流幻境專案/ai3d_10.webp,作品集/AI 3D/埃及宮殿_飄流幻境專案/ai3d_11.webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/AI 3D/埃及宮殿_飄流幻境專案/ai3d_10.webp" alt="AI 3D 埃及宮殿">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">AI 3D</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>blender、GPT、GEMINI、TRIPO、Hunyuan3D、GEMINI GEM</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── AI 系統 系列 (2 張卡片) ── -->
+            <article class="work-card" data-category="ai-system" data-title="AI自動標註" data-year="2025~2026"
+                data-tech="AI Agent"
+                data-images="作品集/AI系統/AI自動標註/Labeler_V1.mp4,作品集/AI系統/AI自動標註/Labeler00.webp,作品集/AI系統/AI自動標註/Labeler01.webp,作品集/AI系統/AI自動標註/Labeler02.webp,作品集/AI系統/AI自動標註/Labeler03.webp,作品集/AI系統/AI自動標註/Labeler04.webp,作品集/AI系統/AI自動標註/Labeler_V2.mp4,作品集/AI系統/AI自動標註/Labeler_V3.mp4">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">VIDEO / SYSTEM</span>
+                    <img loading="lazy" class="work-img" src="作品集/AI系統/AI自動標註/Labeler00.webp" alt="AI 自動標註">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">AI系統</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>AI Agent</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="work-card" data-category="ai-system" data-title="PIXEL轉換" data-year="2025~2026"
+                data-tech="AI Agent" data-images="作品集/AI系統/PIXEL轉換/PIXEL02.mp4,作品集/AI系統/PIXEL轉換/PIXEL01.webp">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">VIDEO / ART</span>
+                    <img loading="lazy" class="work-img" src="作品集/AI系統/PIXEL轉換/PIXEL01.webp" alt="像素轉換">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">AI系統</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>AI Agent</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── 嵌入式 AI 系列 (展開為 3 張卡片) ── -->
+            <!-- 1. 邊緣端點即時識別與知識蒸餾系統 -->
+            <article class="work-card" data-category="embedded-ai" data-title="邊緣端點即時識別與知識蒸餾系統" data-year="2025~2026"
+                data-tech="AI Agent、python、YOLO、LabelImg"
+                data-images="作品集/嵌入式AI影像應用班/SSC_YOLOv8.mp4,作品集/嵌入式AI影像應用班/a.webp,作品集/嵌入式AI影像應用班/01.webp">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">VIDEO / EDGE AI</span>
+                    <img loading="lazy" class="work-img" src="作品集/嵌入式AI影像應用班/a.webp" alt="邊緣偵測">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">嵌入式AI</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>AI Agent、python、YOLO、LabelImg</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- 2. Smart Safety Care 互動系統網頁 -->
+            <article class="work-card" data-category="embedded-ai" data-title="Smart Safety Care 互動系統網頁"
+                data-year="2025~2026" data-tech="AI Agent、python、YOLO、LabelImg" data-images="作品集/嵌入式AI影像應用班/SSC.html">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">HTML / INTERACTIVE</span>
+                    <img loading="lazy" class="work-img" src="作品集/嵌入式AI影像應用班/01.webp" alt="智慧照護網頁">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">嵌入式AI</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>AI Agent、python、YOLO、LabelImg</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- 3. Smart Safety Care 智慧照護應用實踐 -->
+            <article class="work-card" data-category="embedded-ai" data-title="Smart Safety Care 智慧照護應用實踐"
+                data-year="2025~2026" data-tech="AI Agent、python、YOLO、LabelImg"
+                data-images="作品集/嵌入式AI影像應用班/Smart Safety Care.mp4">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">VIDEO / SAFETY</span>
+                    <img class="work-img" src="作品集/嵌入式AI影像應用班/ssc_thumb.webp" alt="智慧照護應用實踐" loading="lazy">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">嵌入式AI</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>AI Agent、python、YOLO、LabelImg</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- AI系統: 圖片批次處理工具 -->
+            <article class="work-card" data-category="ai-system" data-title="圖片批次處理工具" data-year="2025"
+                data-tech="Python" data-images="作品集/AI系統/圖片批次處理工具/Screenshot_3.webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/AI系統/圖片批次處理工具/Screenshot_3.webp" alt="圖片批次處理工具">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">AI系統</span>
+                        <span class="work-year">2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>AI Agent</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- AI系統: 影像快速擷取 -->
+            <article class="work-card" data-category="ai-system" data-title="影像快速擷取" data-year="2025" data-tech="Python"
+                data-images="作品集/AI系統/影像快速擷取/Screenshot_3.webp">
+                <div class="work-img-wrapper">
+                    <img loading="lazy" class="work-img" src="作品集/AI系統/影像快速擷取/Screenshot_3.webp" alt="影像快速擷取">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">AI系統</span>
+                        <span class="work-year">2025</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>AI Agent</span>
+                    </div>
+                </div>
+            </article>
+
+        </section>
+    </main>
+
+    <!-- ── 彈窗 Lightbox DOM ── -->
+    <div class="modal" id="workModal" role="dialog" aria-modal="true">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-content">
+            <button class="close-btn" id="modalClose" aria-label="關閉彈窗">&times;</button>
+
+            <!-- 左側媒體區 -->
+            <div class="modal-media-pane">
+                <button class="slider-arrow arrow-left" id="slidePrev" aria-label="上一張">&larr;</button>
+                <div id="modalMediaContainer"
+                    style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                    <!-- 動態寫入 video 或 img -->
+                </div>
+                <button class="slider-arrow arrow-right" id="slideNext" aria-label="下一張">&rarr;</button>
+                <div class="slider-counter" id="slideCounter">1 / 5</div>
+            </div>
+
+            <!-- 右側詳情區 -->
+            <div class="modal-detail-pane">
+                <span class="modal-category" id="modalCategory">3D RENDER</span>
+                <h2 class="modal-title" id="modalTitle">專案名稱</h2>
+
+
+                <div class="modal-meta-list">
+                    <div class="modal-meta-item">
+                        <span class="modal-meta-label">專案類別 / CATEGORY</span>
+                        <span class="modal-meta-val" id="metaCategory">3D / UE</span>
+                    </div>
+                    <div class="modal-meta-item">
+                        <span class="modal-meta-label">製作年份 / YEAR</span>
+                        <span class="modal-meta-val" id="metaYear">2026</span>
+                    </div>
+                    <div class="modal-meta-item">
+                        <span class="modal-meta-label">核心技術 / TECH STACK</span>
+                        <span class="modal-meta-val" id="metaTech">UE5, Lighting</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ── 頁面邏輯 (Filter, Transition, Lightbox) ── -->
+    <script>
+        function resetTransitionState() {
+            document.body.classList.remove('transition-active');
+            const overlay = document.querySelector('.transition-overlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+            if (window.respawnBug) {
+                window.respawnBug();
+            }
+        }
+        window.addEventListener('pageshow', resetTransitionState);
+        window.addEventListener('DOMContentLoaded', resetTransitionState);
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. 作品過濾 (Filter) 邏輯
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const workCards = document.querySelectorAll('.work-card');
+            const grid = document.getElementById('worksGrid');
+
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const filterValue = btn.getAttribute('data-filter');
+
+                    grid.style.opacity = '0';
+                    setTimeout(() => {
+                        workCards.forEach(card => {
+                            const cat = card.getAttribute('data-category');
+                            if (filterValue === 'all' || cat === filterValue) {
+                                card.style.display = 'flex';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                        grid.style.opacity = '1';
+                    }, 250);
+                });
+            });
+
+            // 2. 彈窗 Lightbox 邏輯
+            const modal = document.getElementById('workModal');
+            const closeBtn = document.getElementById('modalClose');
+            const backdrop = document.getElementById('modalBackdrop');
+            const container = document.getElementById('modalMediaContainer');
+
+            const mCategory = document.getElementById('modalCategory');
+            const mTitle = document.getElementById('modalTitle');
+
+
+            const metaCategory = document.getElementById('metaCategory');
+            const metaYear = document.getElementById('metaYear');
+            const metaTech = document.getElementById('metaTech');
+
+            const prevBtn = document.getElementById('slidePrev');
+            const nextBtn = document.getElementById('slideNext');
+            const counter = document.getElementById('slideCounter');
+
+            let mediaList = []; // 儲存該專案所有的媒體項目
+            let currentMediaIndex = 0;
+
+            workCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // 獲取屬性
+                    const title = card.getAttribute('data-title');
+                    const category = card.getAttribute('data-category');
+
+                    const year = card.getAttribute('data-year');
+                    const tech = card.getAttribute('data-tech');
+
+                    mTitle.textContent = title;
+                    mCategory.textContent = card.querySelector('.work-category').textContent.toUpperCase();
+
+
+                    metaCategory.textContent = card.querySelector('.work-category').textContent.toUpperCase();
+                    metaYear.textContent = year || '';
+                    metaTech.textContent = tech || 'N/A';
+
+                    mediaList = [];
+                    currentMediaIndex = 0;
+
+                    // 讀取 data-images 中的所有資源路徑 (包含影片、網頁與圖片)
+                    const imgString = card.getAttribute('data-images');
+                    if (imgString) {
+                        const items = imgString.split(',');
+                        items.forEach(src => {
+                            const path = src.trim();
+                            if (path) {
+                                const lowerPath = path.toLowerCase();
+                                let type = 'image';
+                                if (lowerPath.endsWith('.mp4')) {
+                                    type = 'video';
+                                } else if (lowerPath.endsWith('.html') || lowerPath.endsWith('.htm')) {
+                                    type = 'iframe';
+                                }
+                                mediaList.push({ type: type, src: path });
+                            }
+                        });
+                    }
+
+                    showMedia(0);
+
+                    // 開啟 Modal
+                    modal.style.display = 'flex';
+                    // 強迫 Reflow
+                    modal.offsetHeight;
+                    modal.classList.add('open');
+                });
+            });
+
+            function showMedia(index) {
+                if (mediaList.length === 0) return;
+                currentMediaIndex = index;
+                container.innerHTML = ''; // 清空
+
+                const item = mediaList[index];
+
+                if (item.type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = item.src;
+                    video.controls = true;
+                    video.autoplay = true;
+                    video.muted = true;
+                    video.style.width = '100%';
+                    video.style.height = '100%';
+                    video.style.maxHeight = '72vh';
+                    container.appendChild(video);
+                } else if (item.type === 'iframe') {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = item.src;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '72vh';
+                    iframe.style.border = 'none';
+                    iframe.style.borderRadius = '8px';
+                    iframe.style.background = '#fff';
+                    container.appendChild(iframe);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = item.src;
+                    img.alt = '作品圖片';
+                    container.appendChild(img);
+                }
+
+                // 顯示隱藏控制箭頭與計數器
+                if (mediaList.length <= 1) {
+                    prevBtn.style.display = 'none';
+                    nextBtn.style.display = 'none';
+                    counter.style.display = 'none';
+                } else {
+                    prevBtn.style.display = 'flex';
+                    nextBtn.style.display = 'flex';
+                    counter.style.display = 'block';
+                    counter.textContent = `${currentMediaIndex + 1} / ${mediaList.length}`;
+                }
+            }
+
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let nextIdx = currentMediaIndex - 1;
+                if (nextIdx < 0) nextIdx = mediaList.length - 1;
+                showMedia(nextIdx);
+            });
+
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let nextIdx = currentMediaIndex + 1;
+                if (nextIdx >= mediaList.length) nextIdx = 0;
+                showMedia(nextIdx);
+            });
+
+            function closeModal() {
+                modal.classList.remove('open');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    container.innerHTML = ''; // 清空以停止任何正在播放的影片
+                }, 400);
+            }
+
+            closeBtn.addEventListener('click', closeModal);
+            backdrop.addEventListener('click', closeModal);
+            document.addEventListener('keydown', (e) => {
+                if (!modal.classList.contains('open')) return;
+
+                if (e.key === 'Escape') {
+                    closeModal();
+                } else if (e.key === 'ArrowLeft' || e.key === 'Left') {
+                    let nextIdx = currentMediaIndex - 1;
+                    if (nextIdx < 0) nextIdx = mediaList.length - 1;
+                    showMedia(nextIdx);
+                } else if (e.key === 'ArrowRight' || e.key === 'Right') {
+                    let nextIdx = currentMediaIndex + 1;
+                    if (nextIdx >= mediaList.length) nextIdx = 0;
+                    showMedia(nextIdx);
+                }
+            });
+        });
+    </script>
+    <script src="cursor.js?v=1"></script>
+    <script src="nav.js?v=1"></script>
+</body>
+
+</html>

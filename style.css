@@ -1,0 +1,1017 @@
+/* ============================================
+   CSS 設計系統 — 水墨作品集
+   Design Read: Portfolio · sumi-e ink wash · register=brand
+   SOUL=9 · SPECTACLE=4 · 拒絕：深色霓虹預設
+   
+   色彩命名規範（三部式）：
+   宣紙 (#F0EBE0) — 頁面底色，仿舊宣紙，非純白。
+   濃墨 (#141210) — 主文字，近黑但帶暖棕，非純黑。
+   淡墨 (#7A7168) — 次要文字與輔助元素。
+   細紋 (#B8B0A4) — 分隔線與描邊。
+   朱砂 (#A8341C) — 唯一強調色，印章紅，全頁鎖定。
+   ============================================ */
+
+:root {
+    --bg: #F0EBE0;
+    /* 宣紙 — 頁面底色 */
+    --ink: #141210;
+    /* 濃墨 — 主文字 */
+    --muted: #7A7168;
+    /* 淡墨 — 次要文字 */
+    --dim: #B8B0A4;
+    /* 細紋 — 分隔線 */
+    --accent: #A8341C;
+    /* 朱砂 — 唯一強調色，全頁鎖定 */
+    --glass-bg: rgba(240, 235, 224, 0.45);
+    --glass-border: rgba(184, 176, 164, 0.5);
+    --font-serif: 'Cormorant Garamond', 'Noto Serif TC', Georgia, serif;
+    --font-zh: 'Noto Serif TC', 'Cormorant Garamond', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ── 全站防複製：禁止文字選取與圖片拖曳 ── */
+html, body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+img, video {
+    -webkit-user-drag: none;
+    user-drag: none;
+    pointer-events: none;
+}
+
+/* 保留互動元素的 pointer-events */
+a, button, [role="button"], input, textarea, select, label,
+.nav-link, .btn-request, .filter-btn, .project-card,
+.modal-close, .slider-btn, .modal-backdrop {
+    pointer-events: auto;
+}
+
+/* ════════════════════════════════════════════════════
+   PAGE LOADER — 貓咪奔跑場景加載畫面
+   設計：場景水平無縫滾動，貓咪固定居中，四邊羽化
+   ════════════════════════════════════════════════════ */
+
+/* 全螢幕遮罩 */
+#page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background-color: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+
+    /* 淡出動畫 */
+    transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 載入完成後的消失狀態 */
+#page-loader.loaded {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* ── 品牌標誌區 ── */
+.loader-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    animation: loaderFadeIn 0.6s ease forwards;
+}
+
+.loader-diamond {
+    font-size: 1.4rem;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.loader-name {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    color: var(--ink);
+}
+
+/* ── 場景視窗（含滾動背景 + 貓咪） ── */
+.loader-scene {
+    position: relative;
+    width: min(700px, 88vw);
+    height: 260px;
+    overflow: hidden;
+    /* 輕微圓角讓場景不太生硬 */
+    border-radius: 2px;
+    animation: loaderFadeIn 0.7s 0.15s ease both;
+}
+
+/* 無縫滾動背景軌道
+   寬度 200% = 兩份背景圖，各佔 50%（即視窗寬度）
+   translateX(-50%) 移動恰好一份，形成無縫迴圈               */
+.loader-bg-strip {
+    position: absolute;
+    inset: 0;
+    width: 200%;
+    height: 100%;
+    background: url('CAT/background.png') 0 center / 50% 100% repeat-x;
+    animation: bgScroll 14s linear infinite;
+    will-change: transform;
+}
+
+@keyframes bgScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+/* 四邊羽化遮罩，融入宣紙底色 */
+.loader-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+        /* 左右羽化（較強，拉長融合區） */
+        linear-gradient(to right,
+            var(--bg) 0%,
+            rgba(240,235,224,0.7) 12%,
+            transparent 28%,
+            transparent 72%,
+            rgba(240,235,224,0.7) 88%,
+            var(--bg) 100%
+        ),
+        /* 上下羽化（較輕） */
+        linear-gradient(to bottom,
+            var(--bg) 0%,
+            rgba(240,235,224,0.5) 14%,
+            transparent 30%,
+            transparent 70%,
+            rgba(240,235,224,0.5) 86%,
+            var(--bg) 100%
+        );
+}
+
+/* 貓咪：固定正中央，GIF 自帶跑步動作 */
+.loader-cat {
+    position: absolute;
+    bottom: 22%;          /* 貼近地面位置 */
+    left: 50%;
+    transform: translateX(-50%);
+    height: 110px;        /* 視覺適中，不搶過背景也不太小 */
+    width: auto;
+    z-index: 3;
+    image-rendering: auto;
+    /* 微陰影讓貓咪和背景有層次感 */
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18));
+}
+
+/* ── 載入狀態文字 ── */
+.loader-caption {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    animation: loaderFadeIn 0.7s 0.3s ease both;
+}
+
+.loader-slash {
+    margin: 0 6px;
+    color: var(--dim);
+}
+
+/* ── 共用淡入動畫 ── */
+@keyframes loaderFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* prefers-reduced-motion：停止背景滾動，貓咪靜止 */
+@media (prefers-reduced-motion: reduce) {
+    .loader-bg-strip { animation: none; }
+    .loader-cat { animation: none; }
+}
+
+/* ── Reset & Base ── */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 啟用 GPU 硬體加速，防止大影片/大量資產解碼時產生卡頓 */
+video,
+img {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    will-change: transform;
+}
+
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-zh);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ── 全域紙質噪音紋理 (Premium Substrate — 消除數位感) ── */
+.grain-overlay {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── 頂部玻璃膠囊導覽列 ── */
+.header-nav {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 1200px;
+    z-index: 50;
+}
+
+.nav-capsule {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    height: 58px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 29px;
+    box-shadow: 0 2px 20px rgba(20, 18, 16, 0.06);
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--ink);
+}
+
+.brand-mark {
+    font-size: 0.7rem;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.brand-name {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    color: var(--ink);
+}
+
+.nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+}
+
+.nav-link {
+    font-family: var(--font-zh);
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: width 0.35s cubic-bezier(.16, 1, .3, 1);
+}
+
+.nav-link:hover {
+    color: var(--ink);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.btn-request {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    color: var(--bg);
+    background: var(--ink);
+    border: none;
+    padding: 9px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-request:hover {
+    background: var(--accent);
+    transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────
+   漢堡選單按鈕（手機 RWD 專用）
+   桌面版預設隱藏，< 900px 才顯示
+───────────────────────────────────────── */
+.menu-toggle {
+    display: none;
+    /* 桌面版隱藏 */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 38px;
+    height: 38px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.menu-toggle:hover {
+    background: rgba(20, 18, 16, 0.06);
+}
+
+/* 三條線 */
+.menu-bar {
+    display: block;
+    width: 20px;
+    height: 1.5px;
+    background: var(--ink);
+    border-radius: 2px;
+    transform-origin: center;
+    transition: transform 0.35s cubic-bezier(.16, 1, .3, 1),
+        opacity 0.25s ease,
+        width 0.3s ease;
+}
+
+/* 開啟後：上線 → 往下旋轉 45° / 中線淡出 / 下線 → 往上旋轉 -45° */
+.menu-toggle.open .menu-bar:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+}
+
+.menu-toggle.open .menu-bar:nth-child(2) {
+    opacity: 0;
+    width: 0;
+}
+
+.menu-toggle.open .menu-bar:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+}
+
+/* ── 手機展開選單 ── */
+.mobile-menu {
+    /* 預設隱藏：用 max-height + opacity 做滑下動畫 */
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    margin-top: 8px;
+    background: rgba(240, 235, 224, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(20, 18, 16, 0.10);
+    transition: max-height 0.45s cubic-bezier(.16, 1, .3, 1),
+        opacity 0.35s ease;
+}
+
+.mobile-menu.open {
+    max-height: 260px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.mobile-nav-links {
+    list-style: none;
+    padding: 12px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-nav-link {
+    display: block;
+    font-family: var(--font-zh);
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    padding: 14px 28px;
+    transition: color 0.2s ease, background 0.2s ease;
+    border-radius: 12px;
+    margin: 0 8px;
+}
+
+.mobile-nav-link:hover {
+    color: var(--ink);
+    background: rgba(20, 18, 16, 0.04);
+}
+
+/* 聯繫按鈕在選單中的樣式 */
+.mobile-nav-accent {
+    color: var(--accent) !important;
+    font-weight: 400 !important;
+    border-top: 1px solid var(--dim);
+    margin-top: 4px;
+    padding-top: 16px;
+}
+
+.mobile-nav-accent:hover {
+    background: rgba(168, 52, 28, 0.06) !important;
+}
+
+
+/* ── Hero 主視覺佈局 ── */
+.hero-section {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: 1fr auto;
+    align-items: center;
+    justify-items: center;
+    /* padding 只給左右子欄，不給整個 grid，使 footer 可以突破到 100vw */
+    padding: 0;
+    gap: 0;
+}
+
+/* ── 左側垂直書法標題 ── */
+.hero-left {
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding-left: 5vw;
+    padding-top: 80px;
+    /* 避開導覽列 */
+}
+
+.vertical-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.v-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--dim);
+    width: fit-content;
+}
+
+.v-title {
+    font-family: var(--font-zh);
+    font-size: clamp(2.2rem, 4vw, 4rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+}
+
+.v-intro {
+    font-family: var(--font-zh);
+    font-size: 0.88rem;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.9;
+    letter-spacing: 0.04em;
+    max-width: 200px;
+    margin-top: 12px;
+    text-wrap: pretty;
+}
+
+.series-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.meta-item {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+}
+
+.meta-divider {
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--dim);
+    margin: 4px 0;
+}
+
+/* ── 壁虎影片（縮小為主視覺焦點，非滿版） ── */
+.video-wrapper {
+    grid-column: 2;
+    position: relative;
+    /* 控制壁虎大小：約螢幕高度 70%，維持影片原始 16:9 比例 */
+    height: 70vh;
+    width: calc(70vh * (16 / 9));
+    max-width: 80vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 防止影片容器超出安全區 */
+    padding-top: 50px;
+}
+
+.video-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* contain 保持比例，配合 mix-blend-mode 使用 */
+    object-position: center;
+    pointer-events: none;
+
+    /* 水墨去背核心技術：
+       multiply 混色使影片灰白背景融入宣紙，壁虎主體呈現如水墨生物標本 */
+    mix-blend-mode: multiply;
+    filter: contrast(1.2) brightness(1.0) saturate(0.8);
+
+    /* 減弱上下的羽化（調大垂直半徑至 65% 使其更清晰），左右維持稍微加強羽化 (44%) */
+    -webkit-mask-image: radial-gradient(45% 65% at center, rgba(0, 0, 0, 1) 55%, rgba(0, 0, 0, 0) 75%);
+    mask-image: radial-gradient(45% 65% at center, rgba(0, 0, 0, 1) 55%, rgba(0, 0, 0, 0) 75%);
+}
+
+/* ── 右側資訊欄 ── */
+.hero-right {
+    justify-self: end;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding-right: 5vw;
+    padding-top: 80px;
+    text-align: right;
+}
+
+.right-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.right-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: var(--dim);
+    text-transform: uppercase;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--dim);
+}
+
+.right-status {
+    font-family: var(--font-zh);
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* 綠色脈衝指示燈 */
+.dot-pulse {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6B8F71;
+    /* 暗綠，配合水墨色調而非霓虹綠 */
+    box-shadow: 0 0 0 0 rgba(107, 143, 113, 0.5);
+    animation: inkPulse 2.5s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes inkPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(107, 143, 113, 0.5);
+    }
+
+    60% {
+        box-shadow: 0 0 0 6px rgba(107, 143, 113, 0);
+    }
+}
+
+.right-desc {
+    font-family: var(--font-zh);
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.8;
+    letter-spacing: 0.05em;
+}
+
+/* ── 底部 Ticker 與說明文字 ── */
+.hero-footer {
+    grid-column: 1 / -1;
+    /* 用負 margin 突破父層 padding，實現 full-width breakout */
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 4vh;
+    align-items: center;
+}
+
+.ticker-line {
+    /* 寬度與視窗等寬，完全不受任何 padding 影響 */
+    width: 100vw;
+    overflow: hidden;
+    border-top: 1px solid var(--dim);
+    border-bottom: 1px solid var(--dim);
+    padding: 8px 0;
+}
+
+/* ticker-track：JS 會動態注入 animation（精確像素 keyframes），CSS 只負責排列 */
+.ticker-track {
+    display: flex;
+    width: max-content;
+    /* 自動撐至所有複製份數的總寬 */
+    /* animation 由 JS 依實際寬度動態注入，這裡不設定，避免覆蓋 */
+}
+
+/* ticker-seed / ticker-content：共用的字體樣式 */
+.ticker-seed,
+.ticker-content {
+    display: inline-block;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--dim);
+    /* 確保相鄰 span 間不產生空白 */
+    vertical-align: top;
+}
+
+.footer-caption {
+    font-family: var(--font-zh);
+    font-size: 0.8rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    padding: 0 5vw;
+}
+
+/* ── 縮減動畫 (prefers-reduced-motion) ── */
+@media (prefers-reduced-motion: reduce) {
+    .ticker-track {
+        animation: none !important;
+    }
+
+    .dot-pulse {
+        animation: none;
+    }
+
+    .nav-link::after {
+        transition: none;
+    }
+}
+
+/* ── 響應式（手機 RWD）── */
+@media (max-width: 900px) {
+    .hero-section {
+        /* 改為 flex column，確保元素垂直排列且 footer 能置底 */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: stretch;
+        padding: 0;
+        height: 100dvh;
+        /* 使用 dvh 避免手機瀏覽器網址列影響高度 */
+        overflow: hidden;
+    }
+
+    /* 上方資訊區塊（hero-left 包裝用） */
+    .hero-left {
+        padding-top: 90px;
+        /* 避開導覽列 */
+        padding-left: 5vw;
+        padding-right: 5vw;
+        flex-shrink: 0;
+    }
+
+    /* 影片佔滿中間剩餘高度 */
+    .video-wrapper {
+        flex: 1;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        min-height: 0;
+        /* flex 子元素必要設定，允許縮小 */
+        padding-top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .video-wrapper video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    /* 右側欄位隱藏 */
+    .hero-right {
+        display: none;
+    }
+
+    /* footer 跑馬燈固定在底部 */
+    .hero-footer {
+        flex-shrink: 0;
+        padding-bottom: 2vh;
+        width: 100vw;
+    }
+
+    .nav-links {
+        display: none;
+    }
+
+    .btn-request {
+        display: none;
+    }
+
+    .menu-toggle {
+        display: flex;
+    }
+
+    .v-title {
+        font-size: clamp(1.8rem, 7vw, 3rem);
+    }
+
+    .v-intro {
+        max-width: 90vw;
+    }
+}
+
+/* ── 轉場特效 (Lizard Mouth Transition) ── */
+.transition-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: var(--ink);
+    /* #141210 */
+    opacity: 0;
+    pointer-events: none;
+    z-index: 99999;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.transition-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* 轉場啟動時，其他 UI 漸漸隱藏 */
+body.transition-active .hero-left,
+body.transition-active .hero-right,
+body.transition-active .hero-footer,
+body.transition-active .header-nav {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.4s ease-out !important;
+}
+
+/* 影片與 3D 畫布同步向嘴巴縮放 */
+.video-wrapper,
+#bug-cursor-canvas {
+    transition: transform 1.2s cubic-bezier(0.25, 1, 0.3, 1), opacity 0.8s ease-in-out;
+    transform-origin: 50% 56%;
+    /* 對齊貓咪嘴巴位置（往下移至 Y = 56%） */
+}
+
+body.transition-active .video-wrapper,
+body.transition-active #bug-cursor-canvas {
+    transform: scale(10) rotate(8deg);
+    /* 放大 10 倍並帶有 8 度旋轉，營造吸入漩渦深淵的效果 */
+    opacity: 0;
+    /* 轉場時平滑淡出，移除 filter: blur 避免 GPU 效能卡頓 */
+}
+
+/* ── 葉影投影背景 (Leaf Shadow Overlay - 外層負責移動) ── */
+.leaf-layer {
+    position: fixed;
+    /* 使用 fixed 以在滾動時保持固定在背景，營造景深感 */
+    inset: -14%;
+    /* 讓圖片超出容器，移動時不會露出邊緣 */
+    z-index: -1;
+    /* 放最底層，確保 body bg 可以透出 */
+    pointer-events: none;
+    user-select: none;
+    will-change: transform;
+
+    /* 32s 緩慢且高級的漂移 */
+    animation: leafDrift 32s cubic-bezier(.45, .05, .55, .95) infinite;
+}
+
+/* 內層只負責圖片外觀 */
+.leaf-layer img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+
+    /* 白底 JPG 用 multiply 可以完全融入紙張背景 */
+    mix-blend-mode: multiply;
+
+    opacity: 0.12;
+    filter: grayscale(1) blur(3px);
+}
+
+/* 以不規則四點形成緩慢環形漂移，100% 回到 0% */
+@keyframes leafDrift {
+
+    0%,
+    100% {
+        transform: translate3d(-16px, -12px, 0) rotate(-0.5deg) scale(1.03);
+    }
+
+    24% {
+        transform: translate3d(20px, -7px, 0) rotate(0.4deg) scale(1.05);
+    }
+
+    53% {
+        transform: translate3d(13px, 22px, 0) rotate(0.8deg) scale(1.06);
+    }
+
+    77% {
+        transform: translate3d(-22px, 16px, 0) rotate(-0.2deg) scale(1.04);
+    }
+}
+
+/* 手機降低移動距離與強度 */
+@media (max-width: 768px) {
+    .leaf-layer {
+        inset: -20%;
+        animation-duration: 38s;
+    }
+
+    .leaf-layer img {
+        opacity: 0.09;
+        filter: grayscale(1) blur(2px);
+    }
+}
+
+/* 使用者偏好減少動畫時，停止背景動態 */
+@media (prefers-reduced-motion: reduce) {
+    .leaf-layer {
+        animation: none !important;
+    }
+}
+
+/* ── 全站高質感載入畫面 (Premium Loader Overlay) ── */
+.site-loader {
+    position: fixed;
+    inset: 0;
+    background-color: var(--bg);
+    /* 溫潤宣紙色 #f0ebe0 */
+    z-index: 100000000;
+    /* 極高層級，高於 3D Canvas 與轉場遮罩 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.8s;
+    opacity: 1;
+    visibility: visible;
+    overflow: hidden;
+}
+
+#loader-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.site-loader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-content {
+    position: relative;
+    z-index: 2;
+    /* 確保文字在 Canvas 粒子上方 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    pointer-events: none;
+}
+
+.loader-mark {
+    font-size: 1.8rem;
+    color: var(--accent);
+    /* 硃砂紅 #b22c22 */
+    animation: loaderPulse 2s ease-in-out infinite;
+}
+
+.loader-brand {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: 0.25em;
+    color: var(--ink);
+    margin-left: 0.25em;
+}
+
+.loader-line-track {
+    width: 120px;
+    height: 1px;
+    background-color: var(--dim);
+    overflow: hidden;
+    position: relative;
+    margin: 4px 0;
+}
+
+.loader-line-fill {
+    width: 40%;
+    height: 100%;
+    background-color: var(--accent);
+    position: absolute;
+    left: -40%;
+    animation: loaderLineFlow 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.loader-text {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+}
+
+@keyframes loaderPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.75;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+}
+
+@keyframes loaderLineFlow {
+    0% {
+        left: -40%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
