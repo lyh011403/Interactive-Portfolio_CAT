@@ -23,13 +23,13 @@
     if (!loader) return;
 
     var minDisplayMs = 1800;   // 最短展示時間（ms）
-    var startTime    = Date.now();
+    var startTime = Date.now();
     var interactiveReady = false;
-    var timeoutId    = null;
+    var timeoutId = null;
 
     function dismiss() {
         var elapsed = Date.now() - startTime;
-        var delay   = Math.max(0, minDisplayMs - elapsed);
+        var delay = Math.max(0, minDisplayMs - elapsed);
         setTimeout(function () {
             loader.classList.add('loaded');
             // transition 結束後移除 DOM，釋放記憶體
@@ -87,12 +87,12 @@
     'use strict';
 
     /* ── 狀態 ─────────────────────────────────────── */
-    var canvas     = null;
-    var ctx        = null;
-    var frames     = [];
+    var canvas = null;
+    var ctx = null;
+    var frames = [];
     var totalFrames = 101;
     var loadedFrames = 0;
-    
+
     var biteFrames = [];
     var totalBiteFrames = 17;
     var loadedBiteFrames = 0;
@@ -103,8 +103,8 @@
     var targetDist = 0;
     var currentDist = 0;
 
-    var prevX      = null;
-    var ready      = false;
+    var prevX = null;
+    var ready = false;
     var animFrameId = null;
     var prefetchPromise = null;
 
@@ -112,17 +112,17 @@
     function tryInit() {
         if (ready) return;
         if (loadedFrames < totalFrames || loadedBiteFrames < totalBiteFrames) return;
-        
+
         ready = true;
         targetAngle = 0;
         currentAngle = 0;
         targetDist = 0;
         currentDist = 0;
-        
+
         console.log('[HAIN] 所有序列圖預載完成，啟用零延遲 Canvas 渲染。');
-        
+
         startRenderLoop();
-        
+
         window.isCatInteractiveReady = true;
         window.dispatchEvent(new CustomEvent('cat-interactive-ready'));
     }
@@ -133,11 +133,11 @@
             let img = new Image();
             let padIdx = i.toString().padStart(3, '0');
             img.src = 'CAT/LR_360_2_WEBP/frame_' + padIdx + '.webp';
-            img.onload = function() {
+            img.onload = function () {
                 loadedFrames++;
                 tryInit();
             };
-            img.onerror = function() {
+            img.onerror = function () {
                 console.error('[HAIN] 圖片載入失敗: ' + img.src);
             };
             frames.push(img);
@@ -147,11 +147,11 @@
             let img = new Image();
             let padIdx = i < 10 ? '0' + i : i;
             img.src = 'CAT/BITE_BG_WEBP/bite_' + padIdx + '.webp';
-            img.onload = function() {
+            img.onload = function () {
                 loadedBiteFrames++;
                 tryInit();
             };
-            img.onerror = function() {
+            img.onerror = function () {
                 console.error('[HAIN] 咬食圖片載入失敗: ' + img.src);
             };
             biteFrames.push(img);
@@ -204,7 +204,7 @@
 
         for (var i = 0; i < points.length - 1; i++) {
             var p1 = points[i];
-            var p2 = points[i+1];
+            var p2 = points[i + 1];
             if (adjustedAngle >= p1.a && adjustedAngle <= p2.a) {
                 var t = (adjustedAngle - p1.a) / (p2.a - p1.a);
                 return p1.f + t * (p2.f - p1.f);
@@ -241,10 +241,10 @@
 
             if (window.isBugEaten) {
                 // 正常線性速率，不調快也不做特殊減速，保持序列幀原本的流暢質感
-                biteRenderFrame += 0.35; 
+                biteRenderFrame += 0.25;
                 var bIndex = Math.max(0, Math.min(totalBiteFrames - 1, Math.floor(biteRenderFrame)));
                 var bImg = biteFrames[bIndex];
-                
+
                 if (bImg && bImg.complete && ctx) {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     // 咬的動作整體下移 60px，保證與平常追蹤頭部位置完美對齊不跳變
@@ -252,11 +252,25 @@
                     ctx.drawImage(bImg, 0, biteOffsetY, canvas.width, canvas.height);
                 }
 
-                if (biteRenderFrame >= totalBiteFrames) {
-                    window.isBugEaten = false;
-                    onBiteEnded();
+                if (biteRenderFrame >= totalBiteFrames - 1) {
+                    var targetHref = window.getTransitionHref ? window.getTransitionHref() : '#';
+                    var isTransitioning = (targetHref && targetHref !== '#' && !targetHref.startsWith('javascript:'));
+                    
+                    if (isTransitioning) {
+                        biteRenderFrame = totalBiteFrames - 1; // 凍結在最後一幀
+                        if (!window._biteEndTriggered) {
+                            window._biteEndTriggered = true;
+                            onBiteEnded();
+                        }
+                    } else {
+                        window.isBugEaten = false;
+                        if (!window._biteEndTriggered) {
+                            window._biteEndTriggered = true;
+                            onBiteEnded();
+                        }
+                    }
                 }
-                
+
                 animFrameId = requestAnimationFrame(update);
                 return;
             }
@@ -288,10 +302,10 @@
             var angleFrame = getFrameForAngle(currentAngle);
             var minDeadzone = 60;
             var maxDeadzone = 160;
-            
+
             // 根據角度選擇最接近的正面中性影格 (0 或 100)
             var centerFrame = (currentAngle <= Math.PI) ? 0 : 100;
-            
+
             var frameVal = 0;
             if (currentDist < minDeadzone) {
                 frameVal = centerFrame;
@@ -304,7 +318,7 @@
 
             var frameIndex = Math.max(0, Math.min(totalFrames - 1, Math.round(frameVal)));
             var img = frames[frameIndex];
-            
+
             if (img && img.complete && ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -331,7 +345,7 @@
         targetDist = Math.sqrt(dx * dx + dy * dy);
 
         var angle = Math.atan2(dy, dx);
-        
+
         // 調整角度，讓向上為 0 弧度，順時針增加
         targetAngle = angle + Math.PI / 2;
         if (targetAngle < 0) targetAngle += 2 * Math.PI;
@@ -345,7 +359,7 @@
             console.error('[HAIN] 找不到 #bg-canvas');
             return;
         }
-        
+
         ctx = canvas.getContext('2d');
 
         // 初始化全域吃蟲狀態
@@ -382,18 +396,19 @@
         /* 實作貓咪奔跑/咬食影片播控 */
         window.playCatEat = function () {
             window.isBugEaten = true;
+            window._biteEndTriggered = false;
             biteRenderFrame = 0;
         };
 
         /* ── 全域攔截連結點擊，觸發轉場特效 ── */
-        document.querySelectorAll('a').forEach(function(link) {
-            link.addEventListener('click', function(e) {
+        document.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function (e) {
                 var href = this.getAttribute('href');
                 var target = this.getAttribute('target');
-                
+
                 if (href && href !== '#' && !href.startsWith('javascript:') && target !== '_blank' && !href.startsWith('mailto:')) {
                     e.preventDefault();
-                    window.getTransitionHref = function() { return href; };
+                    window.getTransitionHref = function () { return href; };
 
                     prefetchPromise = fetch(href)
                         .then(function (res) {
