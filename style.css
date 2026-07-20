@@ -37,7 +37,7 @@ html, body {
     user-select: none;
 }
 
-img, video {
+img, video, canvas {
     -webkit-user-drag: none;
     user-drag: none;
     pointer-events: none;
@@ -208,7 +208,7 @@ a, button, [role="button"], input, textarea, select, label,
 }
 
 /* 啟用 GPU 硬體加速，防止大影片/大量資產解碼時產生卡頓 */
-video,
+video, canvas,
 img {
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
@@ -562,7 +562,7 @@ body {
     padding-top: 50px;
 }
 
-.video-wrapper video {
+.video-wrapper video, .video-wrapper canvas {
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -755,7 +755,7 @@ body {
         justify-content: center;
     }
 
-    .video-wrapper video {
+    .video-wrapper video, .video-wrapper canvas {
         width: 100%;
         height: 100%;
         object-fit: contain;
