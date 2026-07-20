@@ -94,29 +94,15 @@
             </div>
         </aside>
 
-        <!-- 貓咪影片（縮小為主視覺焦點，非滿版） -->
+        <!-- 貓咪畫布（取代原本的影片，實現零延遲追蹤） -->
         <div class="video-wrapper">
-            <video
-                id="bg-video"
-                src="CAT/CAT02.mp4"
-                muted
-                playsinline
-                preload="auto"
+            <canvas
+                id="bg-canvas"
+                width="1280"
+                height="720"
                 aria-label="互動影像：貓咪頭部跟隨滑鼠轉動"
             >
-                您的瀏覽器不支援影片標籤。
-            </video>
-            <video
-                id="eat-video"
-                src="CAT/CAT_咬.mp4"
-                muted
-                playsinline
-                preload="auto"
-                style="display: none;"
-                aria-label="互動影像：貓咪咬食"
-            >
-                您的瀏覽器不支援影片標籤。
-            </video>
+            </canvas>
         </div>
 
         <!-- 右側資訊欄 -->
