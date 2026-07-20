@@ -448,9 +448,13 @@
                 padding: 24px;
             }
             
-            /* 在手機版隱藏懸吊貓咪避免遮擋內容 */
+            /* 手機版調整懸吊貓咪：縮小尺寸並稍微透明，避免畫面過度擁擠與遮擋內容 */
             .hanging-cat {
-                display: none;
+                display: block;
+                width: 130px;
+                top: 35px; /* 往下移一點，避免跟漢堡選單靠太近 */
+                right: 5%;
+                opacity: 0.85;
             }
         }
 
@@ -522,7 +526,10 @@
         </div>
         <!-- 懸吊在導覽列下方的貓咪動畫 (僅在 about 頁面顯示) -->
         <div class="hanging-cat" aria-hidden="true">
-            <img src="CAT/CAT_PLAY.gif" alt="Hanging Cat">
+            <video autoplay loop muted playsinline style="width: 100%; height: auto; object-fit: contain;">
+                <!-- 跨平台支援 (含 Apple 近代設備) 的 VP9 WebM 真實去背影片 -->
+                <source src="CAT/CAT_PLAY_alpha.webm" type="video/webm">
+            </video>
         </div>
     </header>
 
