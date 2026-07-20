@@ -29,3 +29,10 @@ temp/
 
 # cursor-bug.js（如果不需要，但它是 JS 程式碼，看要不要保留，通常保留 JS code 沒關係，但 3D 資源都在 守宮/）
 *.mov
+
+# Ignore raw sequence asset folders
+CAT/BITE_BG/
+CAT/LR_360/
+CAT/LR_360_2/
+CAT/LR_BK/
+CAT/原圖影片/
