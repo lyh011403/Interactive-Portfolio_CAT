@@ -23,7 +23,8 @@
         /* 覆寫 style.css 中的 body 固定寬高，以允許長網頁滾動與隱藏滑鼠游標 */
         .about-body {
             overflow-y: scroll !important;
-            overflow-x: hidden !important; /* 徹底防堵橫向溢出與左右滑動 */
+            overflow-x: hidden !important;
+            /* 徹底防堵橫向溢出與左右滑動 */
             height: auto !important;
             min-height: 100vh !important;
             background-color: var(--bg);
@@ -425,7 +426,8 @@
         /* -------------------------------------------------- */
         @media (max-width: 860px) {
             .about-container {
-                padding: 140px 16px 50px; /* 增加頂部間距，防止文字被 Header 遮擋 */
+                padding: 140px 16px 50px;
+                /* 增加頂部間距，防止文字被 Header 遮擋 */
             }
 
             .about-hero {
@@ -447,12 +449,13 @@
                 gap: 32px;
                 padding: 24px;
             }
-            
+
             /* 手機版調整懸吊貓咪：縮小尺寸並稍微透明，避免畫面過度擁擠與遮擋內容 */
             .hanging-cat {
                 display: block;
                 width: 130px;
-                top: 35px; /* 往下移一點，避免跟漢堡選單靠太近 */
+                top: 35px;
+                /* 往下移一點，避免跟漢堡選單靠太近 */
                 right: 5%;
                 opacity: 0.85;
             }
@@ -461,10 +464,13 @@
         /* 導覽列懸吊貓咪樣式 */
         .hanging-cat {
             position: absolute;
-            top: 29px; /* 對齊導覽列中心線 (58px/2) 或者讓線條從中間出來 */
-            right: 6%; /* 靠右對齊 */
+            top: 29px;
+            /* 對齊導覽列中心線 (58px/2) 或者讓線條從中間出來 */
+            right: 6%;
+            /* 靠右對齊 */
             width: clamp(200px, 20vw, 300px);
-            z-index: -1; /* 藏在導覽列玻璃背景後方 */
+            z-index: -1;
+            /* 藏在導覽列玻璃背景後方 */
             pointer-events: none;
             /* 讓動畫帶一點自然的垂墜感 */
             transform-origin: top center;
@@ -478,8 +484,13 @@
         }
 
         @keyframes swingCat {
-            0% { transform: rotate(-1.5deg); }
-            100% { transform: rotate(1.5deg); }
+            0% {
+                transform: rotate(-1.5deg);
+            }
+
+            100% {
+                transform: rotate(1.5deg);
+            }
         }
     </style>
 </head>
@@ -520,7 +531,8 @@
         <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
             <ul class="mobile-nav-links" role="list">
                 <li><a href="portfolio.html" class="mobile-nav-link">作品</a></li>
-                <li><a href="about.html" class="mobile-nav-link" style="color: var(--ink); font-weight: 700;">關於</a></li>
+                <li><a href="about.html" class="mobile-nav-link" style="color: var(--ink); font-weight: 700;">關於</a>
+                </li>
                 <li><a href="mailto:lyh0972717368@gmail.com" class="mobile-nav-link mobile-nav-accent">聯繫</a></li>
             </ul>
         </div>
@@ -588,7 +600,7 @@
                     <ul class="skill-list">
                         <li class="skill-item">NVIDIA Omniverse (USD 協作管線與即時渲染)</li>
                         <li class="skill-item">TouchDesigner 互動視覺開發與裝置資料對接</li>
-                        <li class="skill-item">自研 Antigravity 插件實現美術邏輯模組化複用</li>
+                        <li class="skill-item">用 AI Agent 開發插件實現美術邏輯模組化複用</li>
                     </ul>
                 </div>
             </div>
@@ -683,7 +695,7 @@
             document.body.classList.remove('transition-active');
             const overlay = document.querySelector('.transition-overlay');
             if (overlay) {
-                setTimeout(function() {
+                setTimeout(function () {
                     overlay.classList.remove('active');
                 }, 80);
             }
