@@ -26,6 +26,7 @@
 
     var IMG_A = BASE + 'CAT/%E6%89%8B%E6%8E%8C_A.png'; // 手掌_A.png
     var IMG_B = BASE + 'CAT/%E6%89%8B%E6%8E%8C_B.png'; // 手掌_B.png
+    var IMG_SLEEP = BASE + 'CAT/CAT_SLEEP.gif'; // 閒置時的睡覺貓咪
 
     /* ── 注入 CSS ────────────────────────────── */
     var style = document.createElement('style');
@@ -65,6 +66,16 @@
         '  top: 0; left: 0;',
         '  opacity: 0;',
         '}',
+        '',
+        /* 閒置時的睡眠貓咪 */
+        '#paw-cursor .paw-sleep {',
+        '  position: absolute;',
+        '  top: 50%; left: 50%;',
+        '  /* 將錨點稍微調整，讓睡覺貓咪偏上一點點，整體放大到 150% 看得更清楚 */',
+        '  transform: translate(-50%, -60%);',
+        '  width: 150%; height: 150%;',
+        '  opacity: 0;',
+        '}',
 
         /* 懸停互動元素時 A 圖輕浮 */
         '#paw-cursor.hover .paw-a {',
@@ -77,10 +88,9 @@
         '  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25));',
         '}',
 
-        /* 閒置晃動 */
-        '#paw-cursor.idle img {',
-        '  animation: pawIdle 1.6s ease-in-out infinite;',
-        '}',
+        /* 閒置時：隱藏貓掌，顯示睡覺貓咪 GIF */
+        '#paw-cursor.idle .paw-a, #paw-cursor.idle .paw-b { opacity: 0 !important; animation: none; }',
+        '#paw-cursor.idle .paw-sleep { opacity: 1; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2)); }',
 
         '@keyframes pawHover {',
         '  from { transform: translateY(0px)  scale(1.0); }',
@@ -129,8 +139,15 @@
     imgB.alt = '';
     imgB.draggable = false;
 
+    var imgSleep = document.createElement('img');
+    imgSleep.className = 'paw-sleep';
+    imgSleep.src = IMG_SLEEP;
+    imgSleep.alt = '';
+    imgSleep.draggable = false;
+
     el.appendChild(imgA);
     el.appendChild(imgB);
+    el.appendChild(imgSleep);
     document.body.appendChild(el);
 
     /* ── 狀態 ────────────────────────────────── */
@@ -261,7 +278,8 @@
         r.addEventListener('animationend', function () { r.remove(); });
     }
 
-    /* ── 預載圖片 B，避免切換瞬間空白 ──────── */
+    /* ── 預載圖片 B 與 SLEEP，避免切換瞬間空白 ──────── */
     (new Image()).src = IMG_B;
+    (new Image()).src = IMG_SLEEP;
 
 })();

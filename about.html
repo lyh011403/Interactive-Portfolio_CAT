@@ -453,11 +453,10 @@
             /* 手機版調整懸吊貓咪：縮小尺寸並稍微透明，避免畫面過度擁擠與遮擋內容 */
             .hanging-cat {
                 display: block;
-                width: 130px;
+                width: 90px;
                 top: 35px;
-                /* 往下移一點，避免跟漢堡選單靠太近 */
                 right: 5%;
-                opacity: 0.85;
+                opacity: 0.6;
             }
         }
 
@@ -465,10 +464,8 @@
         .hanging-cat {
             position: absolute;
             top: 29px;
-            /* 對齊導覽列中心線 (58px/2) 或者讓線條從中間出來 */
             right: 6%;
-            /* 靠右對齊 */
-            width: clamp(200px, 20vw, 300px);
+            width: clamp(150px, 15vw, 220px);
             z-index: -1;
             /* 藏在導覽列玻璃背景後方 */
             pointer-events: none;
