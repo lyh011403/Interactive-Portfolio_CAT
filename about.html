@@ -421,36 +421,9 @@
         }
 
         /* -------------------------------------------------- */
-        /* 懸吊貓咪                                           */
-        /* -------------------------------------------------- */
-        .hanging-cat {
-            position: absolute;
-            top: 45px; /* 讓毛線稍微藏在導覽列膠囊後面 */
-            right: 120px; /* 大約在「關於」和「聯繫」之間的空白處 */
-            z-index: -1; /* 在導覽列下方 */
-            pointer-events: none; /* 避免干擾滑鼠點擊 */
-            transform-origin: top center;
-            animation: swing 5s infinite ease-in-out;
-        }
-
-        .hanging-cat img {
-            width: 220px; /* 依據 gif 大小調整 */
-            height: auto;
-        }
-
-        @keyframes swing {
-            0% { transform: rotate(2deg); }
-            50% { transform: rotate(-2deg); }
-            100% { transform: rotate(2deg); }
-        }
-
-        /* -------------------------------------------------- */
         /* 響應式佈局支援                                     */
         /* -------------------------------------------------- */
         @media (max-width: 860px) {
-            .hanging-cat {
-                display: none; /* 在手機版面隱藏，避免遮擋內容 */
-            }
             .about-container {
                 padding: 140px 16px 50px; /* 增加頂部間距，防止文字被 Header 遮擋 */
             }
@@ -474,6 +447,35 @@
                 gap: 32px;
                 padding: 24px;
             }
+            
+            /* 在手機版隱藏懸吊貓咪避免遮擋內容 */
+            .hanging-cat {
+                display: none;
+            }
+        }
+
+        /* 導覽列懸吊貓咪樣式 */
+        .hanging-cat {
+            position: absolute;
+            top: 29px; /* 對齊導覽列中心線 (58px/2) 或者讓線條從中間出來 */
+            right: 6%; /* 靠右對齊 */
+            width: clamp(200px, 20vw, 300px);
+            z-index: -1; /* 藏在導覽列玻璃背景後方 */
+            pointer-events: none;
+            /* 讓動畫帶一點自然的垂墜感 */
+            transform-origin: top center;
+            animation: swingCat 6s ease-in-out infinite alternate;
+        }
+
+        .hanging-cat img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        @keyframes swingCat {
+            0% { transform: rotate(-1.5deg); }
+            100% { transform: rotate(1.5deg); }
         }
     </style>
 </head>
@@ -518,8 +520,7 @@
                 <li><a href="mailto:lyh0972717368@gmail.com" class="mobile-nav-link mobile-nav-accent">聯繫</a></li>
             </ul>
         </div>
-        
-        <!-- 懸吊貓咪動畫 -->
+        <!-- 懸吊在導覽列下方的貓咪動畫 (僅在 about 頁面顯示) -->
         <div class="hanging-cat" aria-hidden="true">
             <img src="CAT/CAT_PLAY.gif" alt="Hanging Cat">
         </div>
