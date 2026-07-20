@@ -2,7 +2,7 @@
 const themes = {
     classic: { accent: '#A8341C' },
     orange:  { accent: '#E67E22' },
-    blue:    { accent: '#1F618D' },
+    green:   { accent: '#2E7D32' },
     brown:   { accent: '#8A5E38' }
 };
 
@@ -17,7 +17,7 @@ function applyGlobalTheme(themeName) {
     // 如果有貓咪畫布，則加上對應的花色濾鏡
     const catCanvas = document.getElementById('bg-canvas');
     if (catCanvas) {
-        catCanvas.classList.remove('theme-classic', 'theme-orange', 'theme-blue', 'theme-brown');
+        catCanvas.classList.remove('theme-classic', 'theme-orange', 'theme-green', 'theme-brown');
         catCanvas.classList.add('theme-' + themeName);
     }
 }

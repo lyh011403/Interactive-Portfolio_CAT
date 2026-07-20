@@ -654,16 +654,19 @@ body {
 
 /* ── 貓咪花色濾鏡 ── */
 #bg-canvas.theme-classic {
-    filter: contrast(1.2) brightness(1.0) saturate(0.8);
+    filter: contrast(1.1) brightness(1.0) saturate(1.0);
 }
 #bg-canvas.theme-orange {
-    filter: hue-rotate(345deg) saturate(180%) brightness(1.05) contrast(1.1);
+    /* 透過 sepia(1) 賦予黑白灰度底圖溫暖色彩，再旋轉色相並大幅拉高飽和度，染出亮麗橘色 */
+    filter: sepia(1) hue-rotate(340deg) saturate(320%) brightness(1.05) contrast(1.15);
 }
-#bg-canvas.theme-blue {
-    filter: hue-rotate(185deg) saturate(140%) brightness(1.0) contrast(1.1);
+#bg-canvas.theme-green {
+    /* 改為水墨翡翠綠 */
+    filter: sepia(1) hue-rotate(85deg) saturate(260%) brightness(0.98) contrast(1.15);
 }
 #bg-canvas.theme-brown {
-    filter: hue-rotate(325deg) saturate(100%) brightness(0.92) sepia(25%) contrast(1.15);
+    /* 染出溫潤古銅棕 */
+    filter: sepia(1) hue-rotate(5deg) saturate(220%) brightness(0.92) contrast(1.15);
 }
 
 /* ── 調色盤控制器 ── */
