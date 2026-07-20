@@ -111,7 +111,7 @@
         '  z-index: 2147483646;',
         '  width: 20px; height: 20px;',
         '  border-radius: 50%;',
-        '  border: 2px solid var(--accent);',
+        '  border: 2px solid rgba(168, 52, 28, 0.7);',
         '  transform: translate(-50%, -50%) scale(1);',
         '  animation: pawRipple 0.5s ease-out forwards;',
         '}',

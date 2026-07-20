@@ -1,27 +1,3 @@
-// 全站配色主題配置
-const themes = {
-    classic: { accent: '#A8341C' },
-    orange:  { accent: '#E67E22' },
-    green:   { accent: '#2E7D32' },
-    brown:   { accent: '#8A5E38' }
-};
-
-// 立即套用 CSS 變數，避免其他頁面文字/按鈕顏色閃爍
-const savedTheme = localStorage.getItem('cat-theme') || 'classic';
-document.documentElement.style.setProperty('--accent', (themes[savedTheme] || themes.classic).accent);
-
-function applyGlobalTheme(themeName) {
-    const theme = themes[themeName] || themes.classic;
-    document.documentElement.style.setProperty('--accent', theme.accent);
-    
-    // 如果有貓咪畫布，則加上對應的花色濾鏡
-    const catCanvas = document.getElementById('bg-canvas');
-    if (catCanvas) {
-        catCanvas.classList.remove('theme-classic', 'theme-orange', 'theme-green', 'theme-brown');
-        catCanvas.classList.add('theme-' + themeName);
-    }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.getElementById('menuToggle');
     const mobileMenu = document.getElementById('mobileMenu');
@@ -35,34 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Toggle aria-hidden on mobile menu
             mobileMenu.setAttribute('aria-hidden', isExpanded);
-        });
-    }
-
-    // ── 貓咪花色與主題切換 ──────────────────────────────
-    // 確保 Canvas 也套用到正確的 class
-    applyGlobalTheme(savedTheme);
-
-    const themePicker = document.querySelector('.theme-picker');
-    if (themePicker) {
-        const buttons = themePicker.querySelectorAll('.theme-btn');
-        
-        // 設定目前的 active 按鈕
-        buttons.forEach(btn => {
-            if (btn.getAttribute('data-theme') === savedTheme) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-            
-            btn.addEventListener('click', () => {
-                const themeName = btn.getAttribute('data-theme');
-                localStorage.setItem('cat-theme', themeName);
-                applyGlobalTheme(themeName);
-                
-                // 更新按鈕 active 狀態
-                buttons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            });
         });
     }
 });

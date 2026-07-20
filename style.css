@@ -37,7 +37,7 @@ html, body {
     user-select: none;
 }
 
-img, video, canvas {
+img, video {
     -webkit-user-drag: none;
     user-drag: none;
     pointer-events: none;
@@ -208,7 +208,7 @@ a, button, [role="button"], input, textarea, select, label,
 }
 
 /* 啟用 GPU 硬體加速，防止大影片/大量資產解碼時產生卡頓 */
-video, canvas,
+video,
 img {
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
@@ -562,7 +562,7 @@ body {
     padding-top: 50px;
 }
 
-.video-wrapper video, .video-wrapper canvas {
+.video-wrapper video {
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -650,69 +650,6 @@ body {
     color: var(--muted);
     line-height: 1.8;
     letter-spacing: 0.05em;
-}
-
-/* ── 貓咪花色濾鏡 ── */
-#bg-canvas.theme-classic {
-    filter: contrast(1.1) brightness(1.0) saturate(1.0);
-}
-#bg-canvas.theme-orange {
-    /* 透過 sepia(1) 賦予黑白灰度底圖溫暖色彩，再旋轉色相並大幅拉高飽和度，染出亮麗橘色 */
-    filter: sepia(1) hue-rotate(340deg) saturate(320%) brightness(1.05) contrast(1.15);
-}
-#bg-canvas.theme-green {
-    /* 改為水墨翡翠綠 */
-    filter: sepia(1) hue-rotate(85deg) saturate(260%) brightness(0.98) contrast(1.15);
-}
-#bg-canvas.theme-brown {
-    /* 染出溫潤古銅棕 */
-    filter: sepia(1) hue-rotate(5deg) saturate(220%) brightness(0.92) contrast(1.15);
-}
-
-/* ── 調色盤控制器 ── */
-.theme-picker {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-    margin-top: 6px;
-}
-
-.theme-btn {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: 1px solid var(--dim);
-    background: var(--btn-color);
-    cursor: pointer;
-    position: relative;
-    padding: 0;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease;
-    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 3px 6px rgba(0, 0, 0, 0.12);
-}
-
-.theme-btn::after {
-    content: '';
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--bg);
-    transition: transform 0.2s ease;
-}
-
-.theme-btn:hover {
-    transform: scale(1.25);
-}
-
-.theme-btn.active {
-    border-color: var(--ink);
-    transform: scale(1.15);
-}
-
-.theme-btn.active::after {
-    transform: translate(-50%, -50%) scale(1);
 }
 
 /* ── 底部 Ticker 與說明文字 ── */
@@ -818,7 +755,7 @@ body {
         justify-content: center;
     }
 
-    .video-wrapper video, .video-wrapper canvas {
+    .video-wrapper video {
         width: 100%;
         height: 100%;
         object-fit: contain;
