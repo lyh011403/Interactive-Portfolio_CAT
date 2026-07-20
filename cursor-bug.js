@@ -377,8 +377,8 @@ if (window.__bugCursorLoaded) {
     let eatProgress = 0;
     let respawnProgress = 0;
     let eatStartX = 0, eatStartY = 0;
-    // 守宮嘴巴張開的世界座標（中心點），使用者可視實際微調
-    const mouthWorldPos = new THREE.Vector3(0, 0.28, 0);
+    // 貓咪嘴巴張開的世界座標（中心點），已根據 1080p 畫面中嘴巴像素位置精確微調為下方偏中央
+    const mouthWorldPos = new THREE.Vector3(0, -0.25, 0);
     let transitionTargetHref = '';
 
     window.addEventListener('click', (e) => {
@@ -1005,11 +1005,11 @@ if (window.__bugCursorLoaded) {
 
         // 8.1 位置平滑跟隨 與 咬食 / 復活動畫
         if (isEatingMode) {
-            eatProgress += 0.022; // 降速：約 45 幀 (約 750ms) 飛向嘴巴，動作更滑順不突兀
+            eatProgress += 0.015; // 降速：約 66 幀 (約 1.1秒) 飛向嘴巴，與咬食序列圖同步
             if (eatProgress > 1.0) eatProgress = 1.0;
 
-            // 磁吸吸入：二次方加速 (Ease-in)
-            const tEase = eatProgress * eatProgress;
+            // 磁吸吸入：竇性減速 (Sinusoidal Ease-out)，使昆蟲飛向嘴巴最後一刻減慢，視覺定位更精準
+            const tEase = Math.sin(eatProgress * Math.PI / 2);
             curX = eatStartX + (mouthWorldPos.x - eatStartX) * tEase;
             curY = eatStartY + (mouthWorldPos.y - eatStartY) * tEase;
 
