@@ -833,8 +833,8 @@ body.transition-active .video-wrapper,
 body.transition-active #bug-cursor-canvas {
     transform: scale(10) rotate(8deg);
     /* 放大 10 倍並帶有 8 度旋轉，營造吸入漩渦深淵的效果 */
-    opacity: 0;
-    /* 轉場時平滑淡出，移除 filter: blur 避免 GPU 效能卡頓 */
+    opacity: 1;
+    /* 轉場時不淡出，保持定格在最後一格 */
 }
 
 /* ── 葉影投影背景 (Leaf Shadow Overlay - 外層負責移動) ── */

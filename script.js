@@ -24,7 +24,8 @@
 
     var minDisplayMs = 1800;   // 最短展示時間（ms）
     var startTime    = Date.now();
-    var videoReady   = false;
+    var interactiveReady = false;
+    var timeoutId    = null;
 
     function dismiss() {
         var elapsed = Date.now() - startTime;
@@ -38,21 +39,41 @@
         }, delay);
     }
 
-    // 等主影片 canplaythrough 事件
+    function checkAndDismiss() {
+        if (!interactiveReady) return;
+        dismiss();
+    }
+
+    function onInteractiveReady() {
+        if (timeoutId) clearTimeout(timeoutId);
+        interactiveReady = true;
+        checkAndDismiss();
+    }
+
+    // 等主影片與貓咪互動就緒事件
     function waitForVideo() {
         var vid = document.getElementById('bg-video');
-        if (!vid) { dismiss(); return; }
-
-        if (vid.readyState >= 4) {          // HAVE_ENOUGH_DATA
-            dismiss(); return;
+        if (!vid) {
+            interactiveReady = true;
+            checkAndDismiss();
+            return;
         }
-        vid.addEventListener('canplaythrough', function onReady() {
-            vid.removeEventListener('canplaythrough', onReady);
-            dismiss();
-        }, { once: true });
 
-        // 保險機制：最長等 6 秒，防止資源載入失敗而卡住
-        setTimeout(dismiss, 6000);
+        // 監聽貓咪互動模組就緒事件
+        window.addEventListener('cat-interactive-ready', onInteractiveReady);
+
+        // 如果在監聽前就已經就緒了（保險起見）
+        if (window.isCatInteractiveReady) {
+            onInteractiveReady();
+            return;
+        }
+
+        // 保險機制：最長等 8 秒，防止資源載入失敗而卡住
+        timeoutId = setTimeout(function () {
+            console.warn('[HAIN] 載入超時，強制啟用互動並移除載入畫面');
+            window.dispatchEvent(new CustomEvent('force-cat-ready'));
+            onInteractiveReady();
+        }, 8000);
     }
 
     if (document.readyState === 'loading') {
@@ -73,6 +94,10 @@
     var ready      = false;
     var seeking    = false;
     var seekTimeout = null; // 解鎖安全定時器，避免 Chrome 在無 Range 請求伺服器下 seek 永久鎖死
+    var currentRenderTime = 0; // 平滑渲染時間
+    var lastSeekTime = 0;       // 上一次 seek 的時間戳記
+    var animFrameId = null;     // requestAnimationFrame ID
+    var prefetchPromise = null; // 網頁預載入 Promise
 
     /* ── 初始化 ────────────────────────────────────── */
     function isFullyBuffered() {
@@ -82,7 +107,7 @@
         return video.buffered.end(video.buffered.length - 1) >= duration - 0.1;
     }
 
-    function tryInit() {
+    function tryInit(force) {
         if (ready) return;
         if (!video) return;
         if (video.readyState < 1) return; // 確保中繼資料已就緒，防堵 Chrome 未加載 readyState
@@ -98,40 +123,90 @@
 
         // 桌機端：要求必須完整緩衝才啟用，以達極致 seek 體驗；
         // 行動端：因手機瀏覽器有強制的流量省電限制，不允許背景預下載整支影片，因此只要 readyState 就緒便直接啟用
-        if (!isMobile && !isFullyBuffered()) return;
+        if (!force && !isMobile && !isFullyBuffered()) return;
 
         ready      = true;
         targetTime = d / 2; // 預設視線停在正中間（看著正前方）
+        currentRenderTime = d / 2;
 
         try { video.currentTime = d / 2; } catch (e) {}
 
-        console.log('[HAIN] 影片就緒，duration =', duration.toFixed(3), 's, mobile =', isMobile);
+        console.log('[HAIN] 影片就緒，duration =', duration.toFixed(3), 's, mobile =', isMobile, 'forced =', !!force);
+
+        // 啟動平滑渲染迴圈
+        startRenderLoop();
+
+        // 發送貓咪互動就緒事件
+        window.isCatInteractiveReady = true;
+        window.dispatchEvent(new CustomEvent('cat-interactive-ready'));
     }
 
-    function doSeek() {
-        if (!ready || seeking) return;
-        if (video.readyState < 1) return; // 確保 readyState 允許尋軌
+    /* ── Blob 預載入與平滑渲染核心 ─────────────────── */
+    function loadVideoBlob(vidEl, url, label) {
+        return fetch(url)
+            .then(function (res) {
+                if (!res.ok) throw new Error('Fetch failed for ' + url);
+                return res.blob();
+            })
+            .then(function (blob) {
+                var objectURL = URL.createObjectURL(blob);
+                vidEl.src = objectURL;
+                vidEl.load();
+                console.log('[HAIN] 影片已預載入至 Blob:', label);
+            });
+    }
 
-        var diff = Math.abs(video.currentTime - targetTime);
-        if (diff < 0.005) return; // 差距極小，跳過
+    function startRenderLoop() {
+        if (animFrameId) return;
 
-        seeking = true;
-
-        // 150ms 強制解鎖安全鎖，防堵 Range 請求缺失導致影片掛起
-        if (seekTimeout) clearTimeout(seekTimeout);
-        seekTimeout = setTimeout(function () {
-            if (seeking) {
-                seeking = false;
-                doSeek(); // 強制解除鎖定並追趕
+        function update() {
+            if (!ready) {
+                animFrameId = requestAnimationFrame(update);
+                return;
             }
-        }, 150);
 
-        try {
-            video.currentTime = targetTime;
-        } catch (e) {
-            seeking = false; // 異常時解鎖
-            if (seekTimeout) clearTimeout(seekTimeout);
+            // 若吃蟲中或影片隱藏，跳過 seek
+            if (window.isBugEaten || (video && video.style.display === 'none')) {
+                animFrameId = requestAnimationFrame(update);
+                return;
+            }
+
+            // 平滑插值 (Lerp)：讓 currentRenderTime 平滑趨近 targetTime
+            var diff = targetTime - currentRenderTime;
+            if (Math.abs(diff) < 0.001) {
+                currentRenderTime = targetTime;
+            } else {
+                currentRenderTime += diff * 0.15; // 0.15 為緩動係數
+            }
+
+            // 限制 seek 頻率（每 30ms 最多一次）
+            var now = Date.now();
+            if (!seeking && (now - lastSeekTime > 30)) {
+                var seekDiff = Math.abs(video.currentTime - currentRenderTime);
+                // 當時間差距大於一定閾值（例如 0.005 秒）時才執行尋軌
+                if (seekDiff > 0.005) {
+                    seeking = true;
+                    lastSeekTime = now;
+
+                    if (seekTimeout) clearTimeout(seekTimeout);
+                    seekTimeout = setTimeout(function () {
+                        if (seeking) {
+                            seeking = false;
+                        }
+                    }, 100); // 100ms 安全解鎖
+
+                    try {
+                        video.currentTime = currentRenderTime;
+                    } catch (e) {
+                        seeking = false;
+                    }
+                }
+            }
+
+            animFrameId = requestAnimationFrame(update);
         }
+
+        animFrameId = requestAnimationFrame(update);
     }
 
     /* ── 滑鼠位移計算 ──────────────────────────────── */
@@ -150,7 +225,6 @@
             // 第一次偵測到滑鼠（或滑鼠離屏重入、或偵測到瞬移）時，絕對對齊滑鼠坐標
             targetTime = (currentX / window.innerWidth) * duration;
             targetTime = Math.max(0, Math.min(duration, targetTime));
-            doSeek();
             return;
         }
 
@@ -160,8 +234,6 @@
         var timeOffset = (delta / window.innerWidth) * 0.8 * duration;
         targetTime     = targetTime + timeOffset;
         targetTime     = Math.max(0, Math.min(duration, targetTime));
-
-        doSeek();
     }
 
     /* ── 掛載事件（在 DOM 就緒後執行） ─────────────── */
@@ -174,35 +246,47 @@
             return;
         }
 
-        // 強制影片載入，解決 Chrome/Edge 有時卡在 readyState=0 的問題
-        try {
-            video.load();
-            if (eatVideo) eatVideo.load();
-        } catch (e) {
-            console.warn('[HAIN] 影片加載啟動受阻:', e);
-        }
-
         // 初始化全域吃蟲狀態
         window.isBugEaten = false;
 
-        /* seeked：解鎖並追趕 */
+        // 啟動 Blob 預載機制（異步下載整個影片，保證 Seek 零延遲且不需 Range 請求）
+        var p1 = loadVideoBlob(video, 'CAT/CAT02.mp4', '轉頭影片');
+        var p2 = eatVideo ? loadVideoBlob(eatVideo, 'CAT/CAT_咬.mp4', '咬食影片') : Promise.resolve();
+
+        Promise.all([p1, p2])
+            .then(function () {
+                console.log('[HAIN] 所有影片資源均已載入記憶體 Blob，啟用零延遲 Seek。');
+            })
+            .catch(function (err) {
+                console.warn('[HAIN] Blob 預載失敗，降級為原生影片加載 (可能是 file:// 協議 CORS 限制):', err);
+                try {
+                    video.load();
+                    if (eatVideo) eatVideo.load();
+                } catch (e) {}
+            });
+
+        /* seeked：解鎖 */
         video.addEventListener('seeked', function () {
             if (seekTimeout) clearTimeout(seekTimeout);
             seeking = false;
-            doSeek();
         });
 
         /* 監聽所有可能帶出 duration 的影片事件 */
         ['loadedmetadata', 'durationchange', 'canplay', 'canplaythrough'].forEach(function (evt) {
-            video.addEventListener(evt, tryInit);
+            video.addEventListener(evt, function () { tryInit(false); });
+        });
+
+        /* 監聽外部強制就緒事件 */
+        window.addEventListener('force-cat-ready', function () {
+            tryInit(true);
         });
 
         /* 若已緩存（readyState >= 1 = HAVE_METADATA），直接嘗試 */
-        tryInit();
+        tryInit(false);
 
         /* 終極保底：每 80ms 輪詢一次，直到 duration 有效 */
         var poll = setInterval(function () {
-            tryInit();
+            tryInit(false);
             if (ready) clearInterval(poll);
         }, 80);
 
@@ -247,6 +331,9 @@
             video.style.display = 'none';
             eatVideo.style.display = 'block';
             
+            // 恢復原本的播放速率
+            eatVideo.playbackRate = 1.0;
+            
             eatVideo.currentTime = 0;
             var playPromise = eatVideo.play();
             
@@ -266,8 +353,14 @@
             eatVideo.addEventListener('ended', function () {
                 var targetHref = window.getTransitionHref ? window.getTransitionHref() : '#';
                 if (targetHref && targetHref !== '#' && !targetHref.startsWith('javascript:')) {
-                    // 執行頁面跳轉
-                    window.location.href = targetHref;
+                    // 等待預載完成後再執行跳轉，消除黑屏等待時間
+                    if (prefetchPromise) {
+                        prefetchPromise.then(function () {
+                            window.location.href = targetHref;
+                        });
+                    } else {
+                        window.location.href = targetHref;
+                    }
                     return;
                 }
 
@@ -280,6 +373,7 @@
 
                 // 將轉頭影片的目標時間軸平滑重設為中間（正對前方）
                 targetTime = duration / 2;
+                currentRenderTime = duration / 2;
                 prevX = null; // 重置滑鼠坐標，使下一次移動時重新絕對對齊
                 try {
                     video.currentTime = targetTime;
@@ -305,6 +399,16 @@
                     e.preventDefault();
                     window.getTransitionHref = function() { return href; };
 
+                    // 啟動背景 Fetch 下載 HTML 預載入，加速跳轉渲染
+                    prefetchPromise = fetch(href)
+                        .then(function (res) {
+                            if (!res.ok) throw new Error();
+                            return res.text();
+                        })
+                        .catch(function (err) {
+                            console.warn('[HAIN] 網頁預載失敗:', err);
+                        });
+
                     // 啟動全螢幕黑幕與 UI 隱藏特效
                     document.body.classList.add('transition-active');
                     var overlay = document.querySelector('.transition-overlay');
@@ -314,9 +418,14 @@
                     if (window.playCatEat && document.getElementById('eat-video')) {
                         window.playCatEat();
                     } else {
-                        setTimeout(function() {
+                        // 同時等待黑幕蓋滿 800ms 且網頁預載完成後才跳轉
+                        var delayPromise = new Promise(function (resolve) {
+                            setTimeout(resolve, 800);
+                        });
+                        var p = prefetchPromise || Promise.resolve();
+                        Promise.all([p, delayPromise]).then(function () {
                             window.location.href = href;
-                        }, 800);
+                        });
                     }
                 }
             });

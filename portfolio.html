@@ -480,7 +480,7 @@
     <div class="grain-overlay" aria-hidden="true"></div>
 
     <!-- 全螢幕黑幕轉場遮罩 -->
-    <div class="transition-overlay" aria-hidden="true"></div>
+    <div class="transition-overlay active" aria-hidden="true"></div>
 
     <!-- 葉影裝飾 (全頁占滿) -->
     <div class="leaf-layer" aria-hidden="true">
@@ -1211,7 +1211,9 @@
             document.body.classList.remove('transition-active');
             const overlay = document.querySelector('.transition-overlay');
             if (overlay) {
-                overlay.classList.remove('active');
+                setTimeout(function() {
+                    overlay.classList.remove('active');
+                }, 80);
             }
             if (window.respawnBug) {
                 window.respawnBug();
