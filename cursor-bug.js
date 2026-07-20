@@ -1005,11 +1005,11 @@ if (window.__bugCursorLoaded) {
 
         // 8.1 位置平滑跟隨 與 咬食 / 復活動畫
         if (isEatingMode) {
-            eatProgress += 0.015; // 降速：約 66 幀 (約 1.1秒) 飛向嘴巴，與咬食序列圖同步
+            eatProgress += 0.022; // 正常速率：約 45 幀 (約 750ms) 飛向嘴巴，動作跟隨順暢
             if (eatProgress > 1.0) eatProgress = 1.0;
 
-            // 磁吸吸入：竇性減速 (Sinusoidal Ease-out)，使昆蟲飛向嘴巴最後一刻減慢，視覺定位更精準
-            const tEase = Math.sin(eatProgress * Math.PI / 2);
+            // 磁吸吸入：使用正常線性前進，不刻意加速或減速，保持定位準確
+            const tEase = eatProgress;
             curX = eatStartX + (mouthWorldPos.x - eatStartX) * tEase;
             curY = eatStartY + (mouthWorldPos.y - eatStartY) * tEase;
 

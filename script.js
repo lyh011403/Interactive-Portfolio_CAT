@@ -96,7 +96,7 @@
     var biteFrames = [];
     var totalBiteFrames = 17;
     var loadedBiteFrames = 0;
-    var biteProgress = 0;
+    var biteRenderFrame = 0;
 
     var targetAngle = 0;
     var currentAngle = 0;
@@ -178,7 +178,7 @@
         currentAngle = 0;
         targetDist = 0;
         currentDist = 0;
-        biteProgress = 0;
+        biteRenderFrame = 0;
         prevX = null;
 
         setTimeout(function () {
@@ -240,21 +240,19 @@
             }
 
             if (window.isBugEaten) {
-                // 進場放慢：每次增加 0.015 (約 66 幀，1.1 秒播放時間)
-                biteProgress += 0.015; 
-                if (biteProgress > 1.0) biteProgress = 1.0;
-
-                // 在最後一刻減緩動作效果 (Sinusoidal Ease-out)
-                var easedT = Math.sin(biteProgress * Math.PI / 2);
-                var bIndex = Math.max(0, Math.min(totalBiteFrames - 1, Math.floor(easedT * totalBiteFrames)));
+                // 正常線性速率，不調快也不做特殊減速，保持序列幀原本的流暢質感
+                biteRenderFrame += 0.35; 
+                var bIndex = Math.max(0, Math.min(totalBiteFrames - 1, Math.floor(biteRenderFrame)));
                 var bImg = biteFrames[bIndex];
                 
                 if (bImg && bImg.complete && ctx) {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(bImg, 0, 0, canvas.width, canvas.height);
+                    // 咬的動作整體下移 60px，保證與平常追蹤頭部位置完美對齊不跳變
+                    var biteOffsetY = 60;
+                    ctx.drawImage(bImg, 0, biteOffsetY, canvas.width, canvas.height);
                 }
 
-                if (biteProgress >= 1.0) {
+                if (biteRenderFrame >= totalBiteFrames) {
                     window.isBugEaten = false;
                     onBiteEnded();
                 }
@@ -384,7 +382,7 @@
         /* 實作貓咪奔跑/咬食影片播控 */
         window.playCatEat = function () {
             window.isBugEaten = true;
-            biteProgress = 0;
+            biteRenderFrame = 0;
         };
 
         /* ── 全域攔截連結點擊，觸發轉場特效 ── */
