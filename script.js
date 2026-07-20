@@ -90,7 +90,7 @@
     var canvas     = null;
     var ctx        = null;
     var frames     = [];
-    var totalFrames = 31;
+    var totalFrames = 101;
     var loadedFrames = 0;
     
     var biteFrames = [];
@@ -98,8 +98,8 @@
     var loadedBiteFrames = 0;
     var biteRenderFrame = 0;
 
-    var targetFrame = 15; // 中間幀
-    var currentRenderFrame = 15;
+    var targetFrame = 0; // 重置回正面
+    var currentRenderFrame = 0;
     var prevX      = null;
     var ready      = false;
     var animFrameId = null;
@@ -111,7 +111,7 @@
         if (loadedFrames < totalFrames || loadedBiteFrames < totalBiteFrames) return;
         
         ready = true;
-        targetFrame = (totalFrames - 1) / 2;
+        targetFrame = 0;
         currentRenderFrame = targetFrame;
         
         console.log('[HAIN] 所有序列圖預載完成，啟用零延遲 Canvas 渲染。');
@@ -126,8 +126,8 @@
     function loadFrames() {
         for (let i = 0; i < totalFrames; i++) {
             let img = new Image();
-            let padIdx = i < 10 ? '0' + i : i;
-            img.src = 'CAT/LR_BK_WEBP/frame_' + padIdx + '.webp';
+            let padIdx = i.toString().padStart(3, '0');
+            img.src = 'CAT/LR_360_WEBP/frame_' + padIdx + '.webp';
             img.onload = function() {
                 loadedFrames++;
                 tryInit();
@@ -169,13 +169,58 @@
         var overlay = document.querySelector('.transition-overlay');
         if (overlay) overlay.classList.remove('active');
 
-        targetFrame = (totalFrames - 1) / 2;
-        currentRenderFrame = targetFrame;
+        targetFrame = 0; // 重置回正面
+        currentRenderFrame = 0;
         prevX = null;
 
         setTimeout(function () {
             if (window.respawnBug) window.respawnBug();
         }, 1000);
+    }
+
+    /* ── 360度角度對應幀數計算 ────────────────────────── */
+    function getFrameForAngle(angle) {
+        // 控制點映射 (弧度 -> 影格索引)
+        // 0 為右側，順時針增加：右(0) -> 下(PI/2) -> 左(PI) -> 上(3*PI/2) -> 右(2*PI)
+        var points = [
+            { a: 0, f: 80 },
+            { a: Math.PI / 2, f: 68 },
+            { a: Math.PI, f: 60 },
+            { a: 3 * Math.PI / 2, f: 35 },
+            { a: 2 * Math.PI, f: 80 }
+        ];
+
+        for (var i = 0; i < points.length - 1; i++) {
+            var p1 = points[i];
+            var p2 = points[i+1];
+            if (angle >= p1.a && angle <= p2.a) {
+                var t = (angle - p1.a) / (p2.a - p1.a);
+                var f1 = p1.f;
+                var f2 = p2.f;
+                
+                // 跨越 0/100 影格的循環處理 (從 Up 35 遞減到 0，再從 100 遞減到 Right 80)
+                if (f1 === 35 && f2 === 80) {
+                    f2 = -20; // 80 - 100
+                    var val = f1 + t * (f2 - f1);
+                    if (val < 0) val += 100;
+                    return val;
+                }
+                
+                return f1 + t * (f2 - f1);
+            }
+        }
+        return 0;
+    }
+
+    /* ── 圓形最短路徑插值 ────────────────────────────── */
+    function interpolateCircle(f1, f2, t) {
+        var diff = f2 - f1;
+        while (diff < -50) diff += 100;
+        while (diff > 50) diff -= 100;
+        var val = f1 + diff * t;
+        if (val < 0) val += 100;
+        if (val >= 100) val -= 100;
+        return val;
     }
 
     /* ── 平滑渲染核心 ──────────────────────────────── */
@@ -194,7 +239,6 @@
             }
 
             if (window.isBugEaten) {
-                // 播放咬食動畫 (假設 requestAnimationFrame 為 60fps，我們讓它以大約 24~30fps 播放)
                 biteRenderFrame += 0.45; 
                 var bIndex = Math.max(0, Math.min(totalBiteFrames - 1, Math.floor(biteRenderFrame)));
                 var bImg = biteFrames[bIndex];
@@ -213,13 +257,20 @@
                 return;
             }
 
-            // 平滑插值 (Lerp)：讓 currentRenderFrame 平滑趨近 targetFrame
+            // 平滑插值 (Lerp)，考慮 360 度圓形最短路徑，防止轉頭穿幫
             var diff = targetFrame - currentRenderFrame;
+            while (diff < -50) diff += 100;
+            while (diff > 50) diff -= 100;
+
             if (Math.abs(diff) < 0.01) {
                 currentRenderFrame = targetFrame;
             } else {
-                currentRenderFrame += diff * 0.15; // 平滑插值
+                currentRenderFrame += diff * 0.15; // 平滑插值速度
             }
+
+            // 確保 currentRenderFrame 落在 [0, 100] 區間
+            if (currentRenderFrame < 0) currentRenderFrame += 100;
+            if (currentRenderFrame >= 100) currentRenderFrame -= 100;
 
             var frameIndex = Math.max(0, Math.min(totalFrames - 1, Math.round(currentRenderFrame)));
             var img = frames[frameIndex];
@@ -235,27 +286,38 @@
         animFrameId = requestAnimationFrame(update);
     }
 
-    /* ── 滑鼠位移計算 ──────────────────────────────── */
-    function processX(currentX) {
+    /* ── 2D 滑鼠座標計算 ────────────────────────────── */
+    function processXY(clientX, clientY) {
         if (!ready) return;
         if (window.isBugEaten) return;
 
-        var TELEPORT_THRESHOLD = window.innerWidth * 0.5;
-        var isTeleport = prevX !== null && Math.abs(currentX - prevX) > TELEPORT_THRESHOLD;
+        // 計算 Canvas 中心點（貓咪頭部位置）
+        var rect = canvas.getBoundingClientRect();
+        var catCenterX = rect.left + rect.width / 2;
+        var catCenterY = rect.top + rect.height / 2;
 
-        if (prevX === null || isTeleport) {
-            prevX = currentX;
-            targetFrame = (currentX / window.innerWidth) * (totalFrames - 1);
-            targetFrame = Math.max(0, Math.min(totalFrames - 1, targetFrame));
-            return;
+        var dx = clientX - catCenterX;
+        var dy = clientY - catCenterY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+
+        // 盲區 (Deadzone) 設計：靠近中心時看正面，拉遠時慢慢轉向
+        var minDeadzone = 60;
+        var maxDeadzone = 160;
+        
+        var angle = Math.atan2(dy, dx);
+        if (angle < 0) angle += 2 * Math.PI;
+
+        var angleFrame = getFrameForAngle(angle);
+
+        if (dist < minDeadzone) {
+            targetFrame = 0; // 看正面 (frame 0 / 100)
+        } else if (dist < maxDeadzone) {
+            // 平滑過渡看正面與看滑鼠角度
+            var t = (dist - minDeadzone) / (maxDeadzone - minDeadzone);
+            targetFrame = interpolateCircle(0, angleFrame, t);
+        } else {
+            targetFrame = angleFrame;
         }
-
-        var delta      = currentX - prevX;
-        prevX          = currentX;
-
-        var frameOffset = (delta / window.innerWidth) * 0.8 * (totalFrames - 1);
-        targetFrame     = targetFrame + frameOffset;
-        targetFrame     = Math.max(0, Math.min(totalFrames - 1, targetFrame));
     }
 
     /* ── 掛載事件（在 DOM 就緒後執行） ─────────────── */
@@ -284,13 +346,13 @@
 
         /* 滑鼠 mousemove */
         window.addEventListener('mousemove', function (e) {
-            processX(e.clientX);
+            processXY(e.clientX, e.clientY);
         });
 
         /* 觸控 touchmove（手機端） */
         window.addEventListener('touchmove', function (e) {
             if (e.touches && e.touches[0]) {
-                processX(e.touches[0].clientX);
+                processXY(e.touches[0].clientX, e.touches[0].clientY);
             }
         }, { passive: true });
 
