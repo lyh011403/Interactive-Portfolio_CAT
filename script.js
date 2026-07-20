@@ -98,8 +98,11 @@
     var loadedBiteFrames = 0;
     var biteRenderFrame = 0;
 
-    var targetFrame = 0; // 重置回正面
-    var currentRenderFrame = 0;
+    var targetAngle = 0;
+    var currentAngle = 0;
+    var targetDist = 0;
+    var currentDist = 0;
+
     var prevX      = null;
     var ready      = false;
     var animFrameId = null;
@@ -111,8 +114,10 @@
         if (loadedFrames < totalFrames || loadedBiteFrames < totalBiteFrames) return;
         
         ready = true;
-        targetFrame = 0;
-        currentRenderFrame = targetFrame;
+        targetAngle = 0;
+        currentAngle = 0;
+        targetDist = 0;
+        currentDist = 0;
         
         console.log('[HAIN] 所有序列圖預載完成，啟用零延遲 Canvas 渲染。');
         
@@ -127,7 +132,7 @@
         for (let i = 0; i < totalFrames; i++) {
             let img = new Image();
             let padIdx = i.toString().padStart(3, '0');
-            img.src = 'CAT/LR_360_WEBP/frame_' + padIdx + '.webp';
+            img.src = 'CAT/LR_360_2_WEBP/frame_' + padIdx + '.webp';
             img.onload = function() {
                 loadedFrames++;
                 tryInit();
@@ -169,8 +174,10 @@
         var overlay = document.querySelector('.transition-overlay');
         if (overlay) overlay.classList.remove('active');
 
-        targetFrame = 0; // 重置回正面
-        currentRenderFrame = 0;
+        targetAngle = 0;
+        currentAngle = 0;
+        targetDist = 0;
+        currentDist = 0;
         prevX = null;
 
         setTimeout(function () {
@@ -179,37 +186,30 @@
     }
 
     /* ── 360度角度對應幀數計算 ────────────────────────── */
-    function getFrameForAngle(angle) {
-        // 控制點映射 (弧度 -> 影格索引)
-        // 0 為右側，順時針增加：右(0) -> 下(PI/2) -> 左(PI) -> 上(3*PI/2) -> 右(2*PI)
+    function getFrameForAngle(adjustedAngle) {
+        // 依照使用者精確指定的影格：
+        // Up (0) -> Frame 16
+        // Right (PI/2) -> Frame 31
+        // Down (PI) -> Frame 43
+        // Left (3*PI/2) -> Frame 58
+        // Up (2*PI) -> Frame 72
         var points = [
-            { a: 0, f: 80 },
-            { a: Math.PI / 2, f: 68 },
-            { a: Math.PI, f: 60 },
-            { a: 3 * Math.PI / 2, f: 35 },
-            { a: 2 * Math.PI, f: 80 }
+            { a: 0, f: 16 },
+            { a: Math.PI / 2, f: 31 },
+            { a: Math.PI, f: 43 },
+            { a: 3 * Math.PI / 2, f: 58 },
+            { a: 2 * Math.PI, f: 72 }
         ];
 
         for (var i = 0; i < points.length - 1; i++) {
             var p1 = points[i];
             var p2 = points[i+1];
-            if (angle >= p1.a && angle <= p2.a) {
-                var t = (angle - p1.a) / (p2.a - p1.a);
-                var f1 = p1.f;
-                var f2 = p2.f;
-                
-                // 跨越 0/100 影格的循環處理 (從 Up 35 遞減到 0，再從 100 遞減到 Right 80)
-                if (f1 === 35 && f2 === 80) {
-                    f2 = -20; // 80 - 100
-                    var val = f1 + t * (f2 - f1);
-                    if (val < 0) val += 100;
-                    return val;
-                }
-                
-                return f1 + t * (f2 - f1);
+            if (adjustedAngle >= p1.a && adjustedAngle <= p2.a) {
+                var t = (adjustedAngle - p1.a) / (p2.a - p1.a);
+                return p1.f + t * (p2.f - p1.f);
             }
         }
-        return 0;
+        return 16;
     }
 
     /* ── 圓形最短路徑插值 ────────────────────────────── */
@@ -257,22 +257,48 @@
                 return;
             }
 
-            // 平滑插值 (Lerp)，考慮 360 度圓形最短路徑，防止轉頭穿幫
-            var diff = targetFrame - currentRenderFrame;
-            while (diff < -50) diff += 100;
-            while (diff > 50) diff -= 100;
+            // 在「角度輸入空間」做最短路徑平滑插值，徹底解決影格邊界突變造成的抖動
+            var diffAngle = targetAngle - currentAngle;
+            while (diffAngle < -Math.PI) diffAngle += 2 * Math.PI;
+            while (diffAngle > Math.PI) diffAngle -= 2 * Math.PI;
 
-            if (Math.abs(diff) < 0.01) {
-                currentRenderFrame = targetFrame;
+            if (Math.abs(diffAngle) < 0.001) {
+                currentAngle = targetAngle;
             } else {
-                currentRenderFrame += diff * 0.15; // 平滑插值速度
+                currentAngle += diffAngle * 0.15; // 平滑插值速度
             }
 
-            // 確保 currentRenderFrame 落在 [0, 100] 區間
-            if (currentRenderFrame < 0) currentRenderFrame += 100;
-            if (currentRenderFrame >= 100) currentRenderFrame -= 100;
+            // 確保角度在 [0, 2*PI] 之間
+            if (currentAngle < 0) currentAngle += 2 * Math.PI;
+            if (currentAngle >= 2 * Math.PI) currentAngle -= 2 * Math.PI;
 
-            var frameIndex = Math.max(0, Math.min(totalFrames - 1, Math.round(currentRenderFrame)));
+            // 在「距離輸入空間」做平滑插值
+            var diffDist = targetDist - currentDist;
+            if (Math.abs(diffDist) < 0.1) {
+                currentDist = targetDist;
+            } else {
+                currentDist += diffDist * 0.15;
+            }
+
+            // 根據插值後的角度與距離計算出最終應顯示的影格值
+            var angleFrame = getFrameForAngle(currentAngle);
+            var minDeadzone = 60;
+            var maxDeadzone = 160;
+            
+            // 根據角度選擇最接近的正面中性影格 (0 或 100)
+            var centerFrame = (currentAngle <= Math.PI) ? 0 : 100;
+            
+            var frameVal = 0;
+            if (currentDist < minDeadzone) {
+                frameVal = centerFrame;
+            } else if (currentDist < maxDeadzone) {
+                var t = (currentDist - minDeadzone) / (maxDeadzone - minDeadzone);
+                frameVal = interpolateCircle(centerFrame, angleFrame, t);
+            } else {
+                frameVal = angleFrame;
+            }
+
+            var frameIndex = Math.max(0, Math.min(totalFrames - 1, Math.round(frameVal)));
             var img = frames[frameIndex];
             
             if (img && img.complete && ctx) {
@@ -298,26 +324,13 @@
 
         var dx = clientX - catCenterX;
         var dy = clientY - catCenterY;
-        var dist = Math.sqrt(dx * dx + dy * dy);
+        targetDist = Math.sqrt(dx * dx + dy * dy);
 
-        // 盲區 (Deadzone) 設計：靠近中心時看正面，拉遠時慢慢轉向
-        var minDeadzone = 60;
-        var maxDeadzone = 160;
-        
         var angle = Math.atan2(dy, dx);
-        if (angle < 0) angle += 2 * Math.PI;
-
-        var angleFrame = getFrameForAngle(angle);
-
-        if (dist < minDeadzone) {
-            targetFrame = 0; // 看正面 (frame 0 / 100)
-        } else if (dist < maxDeadzone) {
-            // 平滑過渡看正面與看滑鼠角度
-            var t = (dist - minDeadzone) / (maxDeadzone - minDeadzone);
-            targetFrame = interpolateCircle(0, angleFrame, t);
-        } else {
-            targetFrame = angleFrame;
-        }
+        
+        // 調整角度，讓向上為 0 弧度，順時針增加
+        targetAngle = angle + Math.PI / 2;
+        if (targetAngle < 0) targetAngle += 2 * Math.PI;
     }
 
     /* ── 掛載事件（在 DOM 就緒後執行） ─────────────── */
