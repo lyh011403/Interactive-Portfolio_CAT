@@ -535,7 +535,7 @@
         </div>
         <!-- 懸吊在導覽列下方的貓咪動畫 (僅在 about 頁面顯示) -->
         <div class="hanging-cat" aria-hidden="true">
-            <canvas id="playCatCanvas" width="720" height="1280" style="width: 100%; height: auto; object-fit: contain; max-height: 400px; display: block;"></canvas>
+            <canvas id="playCatCanvas" width="720" height="1280" style="width: 100%; height: auto; object-fit: contain; max-height: 400px; display: block; opacity: 0; transition: opacity 0.8s ease-in;"></canvas>
         </div>
     </header>
 
@@ -715,6 +715,9 @@
                     if (loadedPlayFrames === 1) {
                         playCtx.clearRect(0, 0, playCanvas.width, playCanvas.height);
                         playCtx.drawImage(img, 0, 0, playCanvas.width, playCanvas.height);
+                        if (playCanvas.style.opacity === '0') {
+                            playCanvas.style.opacity = '1';
+                        }
                     }
                 };
                 playFrames.push(img);
@@ -724,13 +727,17 @@
             let lastPlayTime = 0;
             function playAnimation(time) {
                 requestAnimationFrame(playAnimation);
-                if (time - lastPlayTime < 33) return; // limit to ~30 FPS
+                if (time - lastPlayTime < 60) return; // limit to ~30 FPS
                 lastPlayTime = time;
 
                 if (loadedPlayFrames > 0 && playFrames[currentPlayFrame].complete) {
                     playCtx.clearRect(0, 0, playCanvas.width, playCanvas.height);
                     playCtx.drawImage(playFrames[currentPlayFrame], 0, 0, playCanvas.width, playCanvas.height);
                     currentPlayFrame = (currentPlayFrame + 1) % totalPlayFrames;
+
+                    if (playCanvas.style.opacity === '0') {
+                        playCanvas.style.opacity = '1';
+                    }
                 }
             }
             requestAnimationFrame(playAnimation);
