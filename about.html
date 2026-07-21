@@ -535,10 +535,7 @@
         </div>
         <!-- 懸吊在導覽列下方的貓咪動畫 (僅在 about 頁面顯示) -->
         <div class="hanging-cat" aria-hidden="true">
-            <video autoplay loop muted playsinline style="width: 100%; height: auto; object-fit: contain;">
-                <!-- 跨平台支援 (含 Apple 近代設備) 的 VP9 WebM 真實去背影片 -->
-                <source src="CAT/CAT_PLAY_alpha.webm" type="video/webm">
-            </video>
+            <canvas id="playCatCanvas" width="1080" height="1080" style="width: 100%; height: auto; object-fit: contain; max-height: 400px; display: block;"></canvas>
         </div>
     </header>
 
@@ -699,6 +696,45 @@
         }
         window.addEventListener('pageshow', resetTransitionState);
         window.addEventListener('DOMContentLoaded', resetTransitionState);
+
+        // 載入與播放貓咪玩耍動畫
+        const playCanvas = document.getElementById('playCatCanvas');
+        if (playCanvas) {
+            const playCtx = playCanvas.getContext('2d');
+            const totalPlayFrames = 94;
+            let playFrames = [];
+            let loadedPlayFrames = 0;
+            let currentPlayFrame = 0;
+
+            for (let i = 0; i < totalPlayFrames; i++) {
+                let img = new Image();
+                let padIdx = i.toString().padStart(3, '0');
+                img.src = 'CAT/CAT_PLAY_BG_WEBP/CAT_PLAY_' + padIdx + '.webp';
+                img.onload = () => {
+                    loadedPlayFrames++;
+                    if (loadedPlayFrames === 1) {
+                        playCtx.clearRect(0, 0, playCanvas.width, playCanvas.height);
+                        playCtx.drawImage(img, 0, 0, playCanvas.width, playCanvas.height);
+                    }
+                };
+                playFrames.push(img);
+            }
+
+            // 動畫迴圈 (約 30 FPS，每 33ms 一個 frame)
+            let lastPlayTime = 0;
+            function playAnimation(time) {
+                requestAnimationFrame(playAnimation);
+                if (time - lastPlayTime < 33) return; // limit to ~30 FPS
+                lastPlayTime = time;
+
+                if (loadedPlayFrames > 0 && playFrames[currentPlayFrame].complete) {
+                    playCtx.clearRect(0, 0, playCanvas.width, playCanvas.height);
+                    playCtx.drawImage(playFrames[currentPlayFrame], 0, 0, playCanvas.width, playCanvas.height);
+                    currentPlayFrame = (currentPlayFrame + 1) % totalPlayFrames;
+                }
+            }
+            requestAnimationFrame(playAnimation);
+        }
     </script>
 
     <script src="cursor.js?v=1"></script>
