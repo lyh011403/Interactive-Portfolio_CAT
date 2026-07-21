@@ -218,6 +218,7 @@ img {
 html {
     scroll-behavior: smooth;
     overflow-x: hidden;
+    background-color: var(--bg); /* 修復 iOS 上下彈性滾動的預設背景色黑條問題 */
 }
 
 body {
