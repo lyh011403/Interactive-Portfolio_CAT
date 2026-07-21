@@ -733,6 +733,18 @@
                 if (loadedPlayFrames > 0 && playFrames[currentPlayFrame].complete) {
                     playCtx.clearRect(0, 0, playCanvas.width, playCanvas.height);
                     playCtx.drawImage(playFrames[currentPlayFrame], 0, 0, playCanvas.width, playCanvas.height);
+
+                    // 若剛好切換回第 0 幀（重新播放一輪），觸發一次 Fade-in 動畫
+                    if (currentPlayFrame === 0) {
+                        playCanvas.animate([
+                            { opacity: 0 },
+                            { opacity: 1 }
+                        ], {
+                            duration: 800,
+                            easing: 'ease-in'
+                        });
+                    }
+
                     currentPlayFrame = (currentPlayFrame + 1) % totalPlayFrames;
 
                     if (playCanvas.style.opacity === '0') {
