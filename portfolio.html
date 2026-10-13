@@ -96,6 +96,59 @@
             box-shadow: 0 4px 12px rgba(168, 52, 28, 0.18);
         }
 
+        /* ── 二級子分類導覽 (Sub-Filter Nav) ── */
+        .sub-filter-nav {
+            display: none;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: -30px;
+            margin-bottom: 40px;
+            padding: 12px 20px;
+            background: rgba(20, 18, 16, 0.03);
+            border: 1px dashed var(--dim);
+            border-radius: 40px;
+            transition: all 0.35s ease;
+        }
+
+        .sub-filter-nav.active {
+            display: flex;
+        }
+
+        .sub-filter-label {
+            font-family: var(--font-zh);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--muted);
+            margin-right: 4px;
+        }
+
+        .sub-filter-btn {
+            font-family: var(--font-zh);
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: transparent;
+            border: 1px solid var(--dim);
+            color: var(--muted);
+            cursor: pointer;
+            padding: 6px 14px;
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .sub-filter-btn:hover {
+            border-color: var(--ink);
+            color: var(--ink);
+            transform: translateY(-1px);
+        }
+
+        .sub-filter-btn.active {
+            background: var(--ink);
+            border-color: var(--ink);
+            color: var(--bg);
+            font-weight: 600;
+        }
+
         /* ── 作品展示網格 ── */
         .works-grid {
             display: grid;
@@ -527,15 +580,30 @@
         <!-- 類別過濾導覽列 (與實體資料夾及 P.txt 配置完全對齊) -->
         <nav class="filter-nav" aria-label="作品分類">
             <button class="filter-btn active" data-filter="all">全部</button>
-            <button class="filter-btn" data-filter="he-m">黃易群俠傳m</button>
-            <button class="filter-btn" data-filter="legend-s">天子傳奇S</button>
-            <button class="filter-btn" data-filter="wonderland-re">飄流幻境RE</button>
+            <button class="filter-btn" data-filter="chinesegamer">中華網龍</button>
             <button class="filter-btn" data-filter="self-3d">自製3D</button>
-            <button class="filter-btn" data-filter="ai-2d">AI 2D</button>
-            <button class="filter-btn" data-filter="ai-3d">AI 3D</button>
-            <button class="filter-btn" data-filter="ai-system">AI系統</button>
-            <button class="filter-btn" data-filter="embedded-ai">嵌入式AI影像應用班</button>
+            <button class="filter-btn" data-filter="ai-design">AI設計</button>
+            <button class="filter-btn" data-filter="ai-cinema">AI影視</button>
+            <button class="filter-btn" data-filter="ai-system">AI工具</button>
+            <button class="filter-btn" data-filter="embedded-ai">嵌入式AI</button>
         </nav>
+
+        <!-- 中華網龍 專屬二級子分類選單 -->
+        <div class="sub-filter-nav" id="chinesegamerSubNav" aria-label="中華網龍專案分類">
+            <span class="sub-filter-label">專案選擇：</span>
+            <button class="sub-filter-btn active" data-subfilter="all">全部專案 (19)</button>
+            <button class="sub-filter-btn" data-subfilter="he-m">黃易群俠傳m</button>
+            <button class="sub-filter-btn" data-subfilter="legend-s">天子傳奇S</button>
+            <button class="sub-filter-btn" data-subfilter="wonderland-re">飄流幻境RE</button>
+        </div>
+
+        <!-- AI設計 專屬二級子分類選單 -->
+        <div class="sub-filter-nav" id="aiDesignSubNav" aria-label="AI設計分類">
+            <span class="sub-filter-label">類別選擇：</span>
+            <button class="sub-filter-btn active" data-subfilter="all">全部設計 (6)</button>
+            <button class="sub-filter-btn" data-subfilter="ai-2d">AI 2D (2)</button>
+            <button class="sub-filter-btn" data-subfilter="ai-3d">AI 3D (4)</button>
+        </div>
 
         <!-- 作品網格 -->
         <section class="works-grid" id="worksGrid">
@@ -888,7 +956,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">自製3D</span>
+                        <span class="work-category">螞蟻生物建模</span>
                         <span class="work-year"></span>
                     </div>
                     <div class="work-footer">
@@ -906,7 +974,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">自製3D</span>
+                        <span class="work-category">3D概念設計</span>
                         <span class="work-year"></span>
                     </div>
                     <div class="work-footer">
@@ -926,7 +994,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">AI 2D</span>
+                        <span class="work-category">楓之谷角色動態</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -944,7 +1012,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">AI 2D</span>
+                        <span class="work-category">2D場景概念</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -963,7 +1031,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">AI 3D</span>
+                        <span class="work-category">巨魔生物生成</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -981,7 +1049,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">AI 3D</span>
+                        <span class="work-category">石頭人生物生成</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -999,7 +1067,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">AI 3D</span>
+                        <span class="work-category">兔子餐車道具</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -1017,7 +1085,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">AI 3D</span>
+                        <span class="work-category">埃及宮殿場景</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -1037,7 +1105,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">AI系統</span>
+                        <span class="work-category">AI自動標註</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -1055,7 +1123,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">AI系統</span>
+                        <span class="work-category">像素轉換工具</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -1076,7 +1144,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">嵌入式AI</span>
+                        <span class="work-category">YOLO邊緣偵測</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -1095,7 +1163,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">嵌入式AI</span>
+                        <span class="work-category">智慧照護系統網頁</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -1115,7 +1183,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">嵌入式AI</span>
+                        <span class="work-category">智慧照護展示片</span>
                         <span class="work-year">2025~2026</span>
                     </div>
                     <div class="work-footer">
@@ -1133,7 +1201,7 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">AI系統</span>
+                        <span class="work-category">圖片批次處理工具</span>
                         <span class="work-year">2025</span>
                     </div>
                     <div class="work-footer">
@@ -1151,11 +1219,131 @@
 
                 <div class="work-info">
                     <div class="work-meta-row">
-                        <span class="work-category">AI系統</span>
+                        <span class="work-category">影像快速擷取工具</span>
                         <span class="work-year">2025</span>
                     </div>
                     <div class="work-footer">
                         <span>AI Agent</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- AI系統: 影片深度轉換工具 -->
+            <article class="work-card" data-category="ai-system" data-title="影片深度轉換工具" data-year="2025~2026"
+                data-tech="Depth Estimation、立體視覺、Python"
+                data-images="作品集/AI系統/影片深度轉換工具/影片深度轉換工具.webp">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">TOOL / 深度視覺</span>
+                    <img loading="lazy" class="work-img" src="作品集/AI系統/影片深度轉換工具/影片深度轉換工具.webp" alt="影片深度轉換工具">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">影片深度轉換工具</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>Depth Estimation、Python</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── AI影像: ComfyUI工作流 ── -->
+            <article class="work-card" data-category="ai-cinema" data-title="ComfyUI工作流" data-year="2025~2026"
+                data-tech="ComfyUI、Turbo LoRA、4-Step 加速、影視工作流"
+                data-images="作品集/AI影像/COMFYUI/Comffyui_steps 20_ Turbo LoRA.webp,作品集/AI影像/COMFYUI/Comffyui_4步_LoRA Loader1.webp">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">WORKFLOW / 影視</span>
+                    <img loading="lazy" class="work-img" src="作品集/AI影像/COMFYUI/Comffyui_steps 20_ Turbo LoRA.webp" alt="ComfyUI工作流">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">ComfyUI工作流</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>ComfyUI、Turbo LoRA</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── AI影像: 漫劇分鏡平台 ── -->
+            <article class="work-card" data-category="ai-cinema" data-title="漫劇分鏡平台" data-year="2025~2026"
+                data-tech="AI Agent、影視分鏡架構、視覺化流程"
+                data-images="作品集/AI影像/AI漫劇工作平台/AI平台 (1).webp,作品集/AI影像/AI漫劇工作平台/AI平台 (2).webp,作品集/AI影像/AI漫劇工作平台/AI平台 (3).webp,作品集/AI影像/AI漫劇工作平台/AI平台 (4).webp">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">SYSTEM / 漫劇</span>
+                    <img loading="lazy" class="work-img" src="作品集/AI影像/AI漫劇工作平台/AI平台 (1).webp" alt="漫劇分鏡平台">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">漫劇分鏡平台</span>
+                        <span class="work-year">2025~2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>AI Agent、影視分鏡</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── AI影像: 角色風格控制 ── -->
+            <article class="work-card" data-category="ai-cinema" data-title="角色風格控制" data-year="2026"
+                data-tech="角色特徵鎖定、跨風格遷移、2D to 3D 對齊"
+                data-images="作品集/AI影像/角色風格設計/3D.webp,作品集/AI影像/角色風格設計/2.5D.webp,作品集/AI影像/角色風格設計/2D.webp">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">STYLE MATRIX</span>
+                    <img loading="lazy" class="work-img" src="作品集/AI影像/角色風格設計/3D.webp" alt="角色風格控制">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">角色風格控制</span>
+                        <span class="work-year">2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>2D · 2.5D · 3D 特徵鎖定</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── AI影像: 角色寫實定妝 ── -->
+            <article class="work-card" data-category="ai-cinema" data-title="角色寫實定妝" data-year="2026"
+                data-tech="電影三聯版式、微觀皮膚肌理、物理身材規格"
+                data-images="作品集/AI影像/角色風格設計/寫實.webp">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">LOOKDEV / 定妝</span>
+                    <img loading="lazy" class="work-img" src="作品集/AI影像/角色風格設計/寫實.webp" alt="角色寫實定妝">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">角色寫實定妝</span>
+                        <span class="work-year">2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>電影定妝照 · Lookdev</span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ── AI影像: IP角色SKILL ── -->
+            <article class="work-card" data-category="ai-cinema" data-title="IP角色SKILL" data-year="2026"
+                data-tech="Agent Skill、結構化提示詞工程、原創IP造型規範"
+                data-images="作品集/SKILL設計/角色設計_SKILL/IP01.webp,作品集/SKILL設計/角色設計_SKILL/IP02.webp">
+                <div class="work-img-wrapper">
+                    <span class="video-badge">AGENT SKILL / IP</span>
+                    <img loading="lazy" class="work-img" src="作品集/SKILL設計/角色設計_SKILL/IP01.webp" alt="IP角色SKILL">
+                </div>
+
+                <div class="work-info">
+                    <div class="work-meta-row">
+                        <span class="work-category">IP角色SKILL</span>
+                        <span class="work-year">2026</span>
+                    </div>
+                    <div class="work-footer">
+                        <span>Agent Skill · IP角色工程</span>
                     </div>
                 </div>
             </article>
@@ -1228,6 +1416,10 @@
             const filterButtons = document.querySelectorAll('.filter-btn');
             const workCards = document.querySelectorAll('.work-card');
             const grid = document.getElementById('worksGrid');
+            const chinesegamerSubNav = document.getElementById('chinesegamerSubNav');
+            const aiDesignSubNav = document.getElementById('aiDesignSubNav');
+            const chinesegamerCategories = ['he-m', 'legend-s', 'wonderland-re'];
+            const aiDesignCategories = ['ai-2d', 'ai-3d'];
 
             filterButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1236,11 +1428,35 @@
 
                     const filterValue = btn.getAttribute('data-filter');
 
+                    // 控制二級子選單顯示
+                    if (filterValue === 'chinesegamer') {
+                        chinesegamerSubNav.classList.add('active');
+                        aiDesignSubNav.classList.remove('active');
+                        const sbs = chinesegamerSubNav.querySelectorAll('.sub-filter-btn');
+                        sbs.forEach(sb => sb.classList.remove('active'));
+                        if (sbs[0]) sbs[0].classList.add('active');
+                    } else if (filterValue === 'ai-design') {
+                        aiDesignSubNav.classList.add('active');
+                        chinesegamerSubNav.classList.remove('active');
+                        const sbs = aiDesignSubNav.querySelectorAll('.sub-filter-btn');
+                        sbs.forEach(sb => sb.classList.remove('active'));
+                        if (sbs[0]) sbs[0].classList.add('active');
+                    } else {
+                        chinesegamerSubNav.classList.remove('active');
+                        aiDesignSubNav.classList.remove('active');
+                    }
+
                     grid.style.opacity = '0';
                     setTimeout(() => {
                         workCards.forEach(card => {
                             const cat = card.getAttribute('data-category');
-                            if (filterValue === 'all' || cat === filterValue) {
+                            if (filterValue === 'all') {
+                                card.style.display = 'flex';
+                            } else if (filterValue === 'chinesegamer') {
+                                card.style.display = chinesegamerCategories.includes(cat) ? 'flex' : 'none';
+                            } else if (filterValue === 'ai-design') {
+                                card.style.display = aiDesignCategories.includes(cat) ? 'flex' : 'none';
+                            } else if (cat === filterValue) {
                                 card.style.display = 'flex';
                             } else {
                                 card.style.display = 'none';
@@ -1248,6 +1464,56 @@
                         });
                         grid.style.opacity = '1';
                     }, 250);
+                });
+            });
+
+            // 中華網龍 二級子分類切換
+            chinesegamerSubNav.querySelectorAll('.sub-filter-btn').forEach(sbtn => {
+                sbtn.addEventListener('click', () => {
+                    chinesegamerSubNav.querySelectorAll('.sub-filter-btn').forEach(sb => sb.classList.remove('active'));
+                    sbtn.classList.add('active');
+
+                    const subFilterValue = sbtn.getAttribute('data-subfilter');
+
+                    grid.style.opacity = '0';
+                    setTimeout(() => {
+                        workCards.forEach(card => {
+                            const cat = card.getAttribute('data-category');
+                            if (subFilterValue === 'all') {
+                                card.style.display = chinesegamerCategories.includes(cat) ? 'flex' : 'none';
+                            } else if (cat === subFilterValue) {
+                                card.style.display = 'flex';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                        grid.style.opacity = '1';
+                    }, 200);
+                });
+            });
+
+            // AI設計 二級子分類切換
+            aiDesignSubNav.querySelectorAll('.sub-filter-btn').forEach(sbtn => {
+                sbtn.addEventListener('click', () => {
+                    aiDesignSubNav.querySelectorAll('.sub-filter-btn').forEach(sb => sb.classList.remove('active'));
+                    sbtn.classList.add('active');
+
+                    const subFilterValue = sbtn.getAttribute('data-subfilter');
+
+                    grid.style.opacity = '0';
+                    setTimeout(() => {
+                        workCards.forEach(card => {
+                            const cat = card.getAttribute('data-category');
+                            if (subFilterValue === 'all') {
+                                card.style.display = aiDesignCategories.includes(cat) ? 'flex' : 'none';
+                            } else if (cat === subFilterValue) {
+                                card.style.display = 'flex';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                        grid.style.opacity = '1';
+                    }, 200);
                 });
             });
 
